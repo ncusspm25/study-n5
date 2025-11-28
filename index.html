@@ -3,206 +3,476 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>main.py - Visual Studio Code</title>
+    <title>vocabulary.ts - Project N5</title>
     <style>
         :root {
-            --bg-color: #1e1e1e;
-            --text-color: #d4d4d4;
-            --keyword: #c586c0;
-            --string: #ce9178;
-            --function: #dcdcaa;
-            --comment: #6a9955;
-            --line-number: #858585;
-            --cursor: #569cd6;
+            --bg: #1e1e1e;
+            --fg: #d4d4d4;
+            --kw: #c586c0; /* Keyword */
+            --var: #9cdcfe; /* Variable */
+            --fn: #dcdcaa; /* Function */
+            --str: #ce9178; /* String */
+            --type: #4ec9b0; /* Type */
+            --num: #b5cea8; /* Number */
+            --cm: #6a9955; /* Comment */
+            --sel: #264f78; /* Selection */
+            --input-bg: #3c3c3c;
         }
+        * { box-sizing: border-box; }
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Consolas', 'Courier New', monospace;
+            background: var(--bg);
+            color: var(--fg);
+            font-family: Consolas, 'Courier New', monospace;
             margin: 0;
-            padding: 20px;
             height: 100vh;
-            overflow: hidden;
-            font-size: 16px;
-        }
-        .editor {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            overflow: hidden;
+            font-size: 15px;
         }
-        .line {
+        /* Layout */
+        .layout { display: flex; flex: 1; height: 100%; }
+        .sidebar {
+            width: 50px;
+            background: #333;
             display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 10px;
+            color: #858585;
         }
-        .line-num {
-            color: var(--line-number);
-            width: 40px;
-            text-align: right;
-            margin-right: 15px;
-            user-select: none;
+        .file-explorer {
+            width: 200px;
+            background: #252526;
+            display: none; /* Hide for space on small screens */
         }
-        .code-content {
-            flex: 1;
-        }
-        .keyword { color: var(--keyword); }
-        .string { color: var(--string); }
-        .function { color: var(--function); }
-        .comment { color: var(--comment); }
+        @media(min-width: 800px) { .file-explorer { display: block; } }
         
+        .editor { flex: 1; display: flex; flex-direction: column; background: var(--bg); position: relative;}
+        
+        /* Tabs */
+        .tabs { display: flex; background: #252526; height: 35px; overflow: hidden; }
+        .tab {
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+            background: var(--bg);
+            color: #fff;
+            font-size: 13px;
+            border-top: 2px solid #007acc;
+            cursor: pointer;
+        }
+        .tab.inactive { background: #2d2d2d; color: #969696; border-top: 2px solid transparent; }
+        
+        /* Code Area */
+        .code-area { flex: 1; padding: 10px 0; overflow-y: auto; font-size: 16px; line-height: 1.5; }
+        .line { display: flex; padding: 0 5px; }
+        .ln { 
+            width: 40px; 
+            text-align: right; 
+            padding-right: 15px; 
+            color: #858585; 
+            user-select: none; 
+            font-size: 14px;
+        }
+        .code { flex: 1; white-space: pre-wrap; word-break: break-all; }
+
+        /* Inputs */
         input {
             background: transparent;
             border: none;
-            color: var(--string);
+            border-bottom: 1px solid var(--cm);
+            color: var(--str);
             font-family: inherit;
             font-size: inherit;
             outline: none;
-            width: 300px;
+            min-width: 100px;
+            text-align: left;
+        }
+        input:focus { border-bottom: 1px solid var(--fg); }
+        
+        /* Status Bar */
+        .status-bar {
+            height: 22px;
+            background: #007acc;
+            color: white;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            cursor: default;
         }
 
-        /* 隱藏區塊 (老闆鍵觸發) */
-        #fake-log {
+        /* Syntax Highlighting Helper Classes */
+        .k { color: var(--kw); }
+        .v { color: var(--var); }
+        .f { color: var(--fn); }
+        .s { color: var(--str); }
+        .t { color: var(--type); }
+        .n { color: var(--num); }
+        .c { color: var(--cm); }
+        .doc { color: #5f9e5c; font-style: italic; } /* JSDoc style */
+        
+        /* Boss Mode Overlay */
+        #boss-screen {
             display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
             color: #ccc;
+            padding: 20px;
+            font-family: monospace;
+            z-index: 9999;
             font-size: 12px;
-            line-height: 1.5;
-            white-space: pre-wrap;
+            white-space: pre;
         }
     </style>
 </head>
 <body>
 
-    <div id="app" class="editor">
-        <div style="margin-bottom: 20px; color: #ccc; font-size: 14px;">
-            <span>index.js</span> <span style="margin-left: 10px; opacity: 0.5;">×</span>
-        </div>
-
-        <div class="line">
-            <span class="line-num">1</span>
-            <span class="code-content"><span class="keyword">const</span> <span class="function">currentLevel</span> = <span class="string">"N5"</span>;</span>
-        </div>
-        <div class="line">
-            <span class="line-num">2</span>
-            <span class="code-content"><span class="comment">// TODO: Fix the bug below</span></span>
-        </div>
-        <div class="line">
-            <span class="line-num">3</span>
-            <span class="code-content"></span>
+    <div class="layout" id="main-layout">
+        <div class="sidebar">
+            <div style="margin-bottom: 20px; font-size: 20px;">📄</div>
+            <div style="margin-bottom: 20px; font-size: 20px;">🔍</div>
+            <div style="margin-bottom: 20px; font-size: 20px;">🐙</div>
         </div>
         
-        <div class="line">
-            <span class="line-num">4</span>
-            <span class="code-content">
-                <span class="keyword">function</span> <span class="function">translate</span>() {
-            </span>
+        <div class="file-explorer">
+            <div style="padding: 10px; font-size: 11px; font-weight: bold; color: #bbb;">EXPLORER</div>
+            <div style="padding: 5px 20px; color: #ccc;">▼ PROJECT-N5</div>
+            <div style="padding: 2px 30px; color: #4ec9b0;">TS vocabulary.ts</div>
+            <div style="padding: 2px 30px; color: #d4d4d4;"># readme.md</div>
+            <div style="padding: 2px 30px; color: #d4d4d4;">{} package.json</div>
         </div>
-        <div class="line">
-            <span class="line-num">5</span>
-            <span class="code-content" style="padding-left: 20px;">
-                <span class="keyword">let</span> question = <span class="string" id="question-text">"..."</span>; <span class="comment">// 請翻譯</span>
-            </span>
-        </div>
-        <div class="line">
-            <span class="line-num">6</span>
-            <span class="code-content" style="padding-left: 20px;">
-                <span class="keyword">let</span> answer = <span class="string">"</span><input type="text" id="user-input" autocomplete="off" placeholder="..."> <span class="string">"</span>;
-            </span>
-        </div>
-        <div class="line">
-            <span class="line-num">7</span>
-            <span class="code-content">
-                }
-            </span>
-        </div>
-        <div class="line">
-            <span class="line-num">8</span>
-            <span class="code-content"></span>
-        </div>
-        <div class="line">
-            <span class="line-num">9</span>
-            <span class="code-content" id="result-msg">
-                <span class="comment">// Waiting for input...</span>
-            </span>
+
+        <div class="editor">
+            <div class="tabs">
+                <div class="tab">
+                    <span style="color:#4ec9b0; margin-right:5px;">TS</span> vocabulary.ts <span style="margin-left:10px; font-size:16px;">×</span>
+                </div>
+                <div class="tab inactive">grammar.spec.ts</div>
+            </div>
+
+            <div class="code-area" id="code-container">
+                </div>
         </div>
     </div>
 
-    <div id="fake-log">
-Running build task...
-[INFO] 2024-11-28 10:00:01 Compiling assets...
-[WARN] DeprecationWarning: Buffer() is deprecated due to security and usability issues.
-[INFO] Build completed in 3402ms.
-[INFO] Starting server on port 8080...
-[DEBUG] Connection established.
-[INFO] Fetching data from database...
-... (Press Esc again to return)
+    <div class="status-bar">
+        <div style="display:flex; gap:15px;">
+            <span>main*</span>
+            <span>0 errors, 0 warnings</span>
+        </div>
+        <div style="display:flex; gap:15px;">
+            <span id="progress-indicator">Ln 12, Col 45</span>
+            <span>UTF-8</span>
+            <span>TypeScript</span>
+            <span>Prettier</span>
+        </div>
+    </div>
+
+    <div id="boss-screen">
+C:\Users\Admin> npm run dev
+> n5-app@0.0.0 dev
+> vite
+
+  VITE v4.3.9  ready in 420 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+  ➜  press h to show help
+
+[INFO] [14:02:23] GET /src/main.ts 200 - 15ms
+[INFO] [14:02:23] GET /src/App.vue 200 - 120ms
+[INFO] [14:02:23] HMR update: /src/components/HelloWorld.vue
+[WARN] Deprecation: "sass" is deprecated.
+...
     </div>
 
     <script>
-        // --- N5 資料庫 (可以在這裡擴充) ---
-        // type: 'vocab' (單字) 或 'grammar' (文法)
-        const questionBank = [
-            { q: "りんご", a: "apple", hint: "名詞: 蘋果" },
-            { q: "たべる", a: "eat", hint: "動詞: 吃" },
-            { q: "わたし", a: "I", hint: "代名詞: 我" },
-            { q: "ねこ", a: "cat", hint: "名詞: 貓" },
-            { q: "本 (ほん)", a: "book", hint: "名詞: 書" },
-            { q: "これはペンです", a: "this is a pen", hint: "文法: 這是筆" }
+        // ==========================================
+        // 資料庫結構說明
+        // k: 漢字 (Kanji - 顯示在變數名)
+        // r: 拼音 (Reading - 顯示在註解)
+        // a: 答案 (Answers - 英文/中文)
+        // h: 提示 (Hint - 中文意思)
+        // ==========================================
+        const db = [
+            // --- 1. 代名詞 & 人物 (Pronouns & People) ---
+            {t:'n', k:'私', r:'わたし', a:['I','我'], h:'我'},
+            {t:'n', k:'あなた', r:'あなた', a:['you','你'], h:'你 (通常用對方名字)'},
+            {t:'n', k:'先生', r:'せんせい', a:['teacher','老師'], h:'老師/醫生'},
+            {t:'n', k:'学生', r:'がくせい', a:['student','學生'], h:'學生'},
+            {t:'n', k:'会社員', r:'かいしゃいん', a:['employee','公司職員','上班族'], h:'公司職員'},
+            {t:'n', k:'人', r:'ひと', a:['person','人'], h:'人'},
+            {t:'n', k:'子供', r:'こども', a:['child','小孩'], h:'小孩'},
+            {t:'n', k:'男の人', r:'おとこのひと', a:['man','男人'], h:'男人'},
+            {t:'n', k:'女の人', r:'おんなのひと', a:['woman','女人'], h:'女人'},
+            {t:'n', k:'誰', r:'だれ', a:['who','誰'], h:'誰'},
+
+            // --- 2. 家族 (Family) ---
+            {t:'n', k:'父', r:'ちち', a:['father','dad','爸爸','家父'], h:'(我的)父親'},
+            {t:'n', k:'母', r:'はは', a:['mother','mom','媽媽','家母'], h:'(我的)母親'},
+            {t:'n', k:'兄', r:'あに', a:['older brother','哥哥'], h:'(我的)哥哥'},
+            {t:'n', k:'姉', r:'あね', a:['older sister','姊姊'], h:'(我的)姊姊'},
+            {t:'n', k:'弟', r:'おとうと', a:['younger brother','弟弟'], h:'(我的)弟弟'},
+            {t:'n', k:'妹', r:'いもうと', a:['younger sister','妹妹'], h:'(我的)妹妹'},
+            {t:'n', k:'お父さん', r:'おとうさん', a:['father','爸爸'], h:'(別人的)父親'},
+            {t:'n', k:'お母さん', r:'おかあさん', a:['mother','媽媽'], h:'(別人的)母親'},
+
+            // --- 3. 時間 (Time) ---
+            {t:'n', k:'今', r:'いま', a:['now','現在'], h:'現在'},
+            {t:'n', k:'今日', r:'きょう', a:['today','今天'], h:'今天'},
+            {t:'n', k:'昨日', r:'きのう', a:['yesterday','昨天'], h:'昨天'},
+            {t:'n', k:'明日', r:'あした', a:['tomorrow','明天'], h:'明天'},
+            {t:'n', k:'朝', r:'あさ', a:['morning','早上'], h:'早上'},
+            {t:'n', k:'昼', r:'ひる', a:['noon','daytime','中午'], h:'中午/白天'},
+            {t:'n', k:'晩', r:'ばん', a:['night','evening','晚上'], h:'晚上'},
+            {t:'n', k:'毎日', r:'まいにち', a:['everyday','每天'], h:'每天'},
+            {t:'n', k:'先週', r:'せんしゅう', a:['last week','上週'], h:'上週'},
+            {t:'n', k:'今週', r:'こんしゅう', a:['this week','本週'], h:'這週'},
+            {t:'n', k:'来週', r:'らいしゅう', a:['next week','下週'], h:'下週'},
+            {t:'n', k:'いつ', r:'いつ', a:['when','何時'], h:'什麼時候'},
+
+            // --- 4. 場所 & 位置 (Places & Positions) ---
+            {t:'n', k:'学校', r:'がっこう', a:['school','學校'], h:'學校'},
+            {t:'n', k:'教室', r:'きょうしつ', a:['classroom','教室'], h:'教室'},
+            {t:'n', k:'食堂', r:'しょくどう', a:['canteen','cafeteria','食堂'], h:'食堂/餐廳'},
+            {t:'n', k:'トイレ', r:'トイレ', a:['toilet','restroom','廁所'], h:'廁所'},
+            {t:'n', k:'病院', r:'びょういん', a:['hospital','醫院'], h:'醫院'},
+            {t:'n', k:'銀行', r:'ぎんこう', a:['bank','銀行'], h:'銀行'},
+            {t:'n', k:'郵便局', r:'ゆうびんきょく', a:['post office','郵局'], h:'郵局'},
+            {t:'n', k:'図書館', r:'としょかん', a:['library','圖書館'], h:'圖書館'},
+            {t:'n', k:'上', r:'うえ', a:['up','above','上','上面'], h:'上面'},
+            {t:'n', k:'下', r:'した', a:['down','below','下','下面'], h:'下面'},
+            {t:'n', k:'前', r:'まえ', a:['front','before','前','前面'], h:'前面'},
+            {t:'n', k:'後ろ', r:'うしろ', a:['back','behind','後','後面'], h:'後面'},
+            {t:'n', k:'中', r:'なか', a:['inside','in','中','裡面'], h:'裡面'},
+            {t:'n', k:'外', r:'そと', a:['outside','外','外面'], h:'外面'},
+            {t:'n', k:'左', r:'ひだり', a:['left','左'], h:'左邊'},
+            {t:'n', k:'右', r:'みぎ', a:['right','右'], h:'右邊'},
+
+            // --- 5. 食物 (Food) ---
+            {t:'n', k:'ご飯', r:'ごはん', a:['rice','meal','飯'], h:'飯/餐'},
+            {t:'n', k:'卵', r:'たまご', a:['egg','雞蛋'], h:'雞蛋'},
+            {t:'n', k:'肉', r:'にく', a:['meat','肉'], h:'肉'},
+            {t:'n', k:'魚', r:'さかな', a:['fish','魚'], h:'魚'},
+            {t:'n', k:'野菜', r:'やさい', a:['vegetable','蔬菜'], h:'蔬菜'},
+            {t:'n', k:'果物', r:'くだもの', a:['fruit','水果'], h:'水果'},
+            {t:'n', k:'水', r:'みず', a:['water','水'], h:'水'},
+            {t:'n', k:'お茶', r:'おちゃ', a:['tea','茶'], h:'茶'},
+            {t:'n', k:'牛乳', r:'ぎゅうにゅう', a:['milk','牛奶'], h:'牛奶'},
+
+            // --- 6. 物品 (Objects) ---
+            {t:'n', k:'本', r:'ほん', a:['book','書'], h:'書'},
+            {t:'n', k:'辞書', r:'じしょ', a:['dictionary','字典'], h:'字典'},
+            {t:'n', k:'新聞', r:'しんぶん', a:['newspaper','報紙'], h:'報紙'},
+            {t:'n', k:'鉛筆', r:'えんぴつ', a:['pencil','鉛筆'], h:'鉛筆'},
+            {t:'n', k:'時計', r:'とけい', a:['watch','clock','手錶','時鐘'], h:'鐘錶'},
+            {t:'n', k:'傘', r:'かさ', a:['umbrella','雨傘'], h:'雨傘'},
+            {t:'n', k:'車', r:'くるま', a:['car','車'], h:'車'},
+            {t:'n', k:'机', r:'つくえ', a:['desk','桌子'], h:'桌子'},
+            {t:'n', k:'椅子', r:'いす', a:['chair','椅子'], h:'椅子'},
+            {t:'n', k:'手紙', r:'てがみ', a:['letter','信'], h:'信'},
+
+            // --- 7. 動詞 (Verbs - Masu Form) ---
+            {t:'v', k:'起きます', r:'おきます', a:['wake up','起床'], h:'起床'},
+            {t:'v', k:'寝ます', r:'ねます', a:['sleep','睡覺'], h:'睡覺'},
+            {t:'v', k:'働きます', r:'はたらきます', a:['work','工作'], h:'工作'},
+            {t:'v', k:'休みます', r:'やすみます', a:['rest','休息'], h:'休息/請假'},
+            {t:'v', k:'勉強します', r:'べんきょうします', a:['study','學習'], h:'學習'},
+            {t:'v', k:'行きます', r:'いきます', a:['go','去'], h:'去'},
+            {t:'v', k:'来ます', r:'きます', a:['come','來'], h:'來'},
+            {t:'v', k:'帰ります', r:'かえります', a:['return','go home','回家'], h:'回家'},
+            {t:'v', k:'食べます', r:'たべます', a:['eat','吃'], h:'吃'},
+            {t:'v', k:'飲みます', r:'のみます', a:['drink','喝'], h:'喝'},
+            {t:'v', k:'買います', r:'かいます', a:['buy','買'], h:'買'},
+            {t:'v', k:'見ます', r:'みます', a:['watch','see','看'], h:'看'},
+            {t:'v', k:'聞きます', r:'ききます', a:['listen','hear','ask','聽'], h:'聽/問'},
+            {t:'v', k:'読みます', r:'よみます', a:['read','讀'], h:'閱讀'},
+            {t:'v', k:'書きます', r:'かきます', a:['write','draw','寫'], h:'寫/畫'},
+            {t:'v', k:'会います', r:'あいます', a:['meet','見面'], h:'見面 (朋友に__)'},
+            {t:'v', k:'遊びます', r:'あそびます', a:['play','玩'], h:'玩耍'},
+            {t:'v', k:'泳ぎます', r:'およぎます', a:['swim','游泳'], h:'游泳'},
+            {t:'v', k:'話します', r:'はなします', a:['speak','talk','說'], h:'說話'},
+            {t:'v', k:'待ちます', r:'まちます', a:['wait','等'], h:'等待'},
+            {t:'v', k:'持ちます', r:'もちます', a:['hold','have','拿','有'], h:'持有/拿'},
+            {t:'v', k:'撮ります', r:'とります', a:['take','拍照'], h:'拿取/拍照'},
+            {t:'v', k:'手伝います', r:'てつだいます', a:['help','幫忙'], h:'幫忙'},
+            {t:'v', k:'分かります', r:'わかります', a:['understand','懂','明白'], h:'懂了'},
+            {t:'v', k:'あります', r:'あります', a:['have','exist','有','在'], h:'有/在 (無生命)'},
+            {t:'v', k:'います', r:'います', a:['have','exist','有','在'], h:'有/在 (有生命)'},
+
+            // --- 8. い形容詞 (i-Adjectives) ---
+            {t:'adj', k:'大きい', r:'おおきい', a:['big','大'], h:'大的'},
+            {t:'adj', k:'小さい', r:'ちいさい', a:['small','小'], h:'小的'},
+            {t:'adj', k:'新しい', r:'あたらしい', a:['new','新'], h:'新的'},
+            {t:'adj', k:'古い', r:'ふるい', a:['old','舊'], h:'舊的'},
+            {t:'adj', k:'いい', r:'いい', a:['good','好'], h:'好的'},
+            {t:'adj', k:'悪い', r:'わるい', a:['bad','壞'], h:'壞的'},
+            {t:'adj', k:'暑い', r:'あつい', a:['hot','熱'], h:'熱的 (天氣)'},
+            {t:'adj', k:'寒い', r:'さむい', a:['cold','冷'], h:'冷的 (天氣)'},
+            {t:'adj', k:'冷たい', r:'つめたい', a:['cold','冰'], h:'冰的 (觸感/飲料)'},
+            {t:'adj', k:'難しい', r:'むずかしい', a:['difficult','難'], h:'難的'},
+            {t:'adj', k:'易しい', r:'やさしい', a:['easy','kind','簡單','溫柔'], h:'簡單的/溫柔的'},
+            {t:'adj', k:'高い', r:'たかい', a:['high','expensive','貴','高'], h:'貴的/高的'},
+            {t:'adj', k:'安い', r:'やすい', a:['cheap','便宜'], h:'便宜的'},
+            {t:'adj', k:'おいしい', r:'おいしい', a:['delicious','好吃','美味'], h:'好吃的'},
+            {t:'adj', k:'楽しい', r:'たのしい', a:['fun','快樂'], h:'愉快的'},
+            {t:'adj', k:'忙しい', r:'いそがしい', a:['busy','忙'], h:'忙碌的'},
+
+            // --- 9. な形容詞 (na-Adjectives) ---
+            {t:'adj', k:'綺麗', r:'きれい', a:['beautiful','clean','漂亮','乾淨'], h:'漂亮的/乾淨的'},
+            {t:'adj', k:'静か', r:'しずか', a:['quiet','安靜'], h:'安靜的'},
+            {t:'adj', k:'有名', r:'ゆうめい', a:['famous','有名'], h:'有名的'},
+            {t:'adj', k:'親切', r:'しんせつ', a:['kind','親切'], h:'親切的'},
+            {t:'adj', k:'元気', r:'げんき', a:['healthy','energetic','元氣','健康'], h:'有精神的'},
+            {t:'adj', k:'暇', r:'ひま', a:['free','free time','閒','有空'], h:'空閒的'},
+            {t:'adj', k:'好き', r:'すき', a:['like','喜歡'], h:'喜歡的'},
+            {t:'adj', k:'嫌い', r:'きらい', a:['hate','dislike','討厭'], h:'討厭的'},
+            {t:'adj', k:'上手', r:'じょうず', a:['good at','擅長'], h:'擅長的'},
+            {t:'adj', k:'下手', r:'へた', a:['bad at','不擅長','爛'], h:'拙劣的'},
+
+            // --- 10. 副詞 & 其他 (Adverbs) ---
+            {t:'adv', k:'とても', r:'とても', a:['very','非常'], h:'非常 (接肯定)'},
+            {t:'adv', k:'あまり', r:'あまり', a:['not very','不太'], h:'不太 (接否定)'},
+            {t:'adv', k:'少し', r:'すこし', a:['little','a little','一點點'], h:'一點點'},
+            {t:'adv', k:'沢山', r:'たくさん', a:['many','a lot','很多'], h:'很多'},
+            {t:'adv', k:'早く', r:'はやく', a:['early','fast','早','快'], h:'早/快'},
+            {t:'adv', k:'もう', r:'もう', a:['already','已經'], h:'已經'},
+            {t:'adv', k:'まだ', r:'まだ', a:['not yet','還沒'], h:'還沒'},
+
+            // --- 11. 文法句型 (Grammar Patterns) ---
+            // Grammar uses 'pre' and 'post' structure
+            {mode:'g', pre:'私', post:'学生です。', a:['は','wa'], desc:'我是學生 (主題標記)', r:'わたし...がくせい'},
+            {mode:'g', pre:'これ', post:'本ですか。', a:['は','wa'], desc:'這是書嗎？', r:'これ...ほん'},
+            {mode:'g', pre:'トイレ', post:'どこですか。', a:['は','wa'], desc:'廁所在哪裡？', r:'トイレ...どこ'},
+            {mode:'g', pre:'3時', post:'寝ます。', a:['に','ni'], desc:'三點睡覺 (時間點)', r:'さんじ...ねます'},
+            {mode:'g', pre:'学校', post:'行きます。', a:['へ','に','e','ni'], desc:'去學校 (移動方向)', r:'がっこう...いきます'},
+            {mode:'g', pre:'バス', post:'来ました。', a:['で','de'], desc:'搭公車來的 (交通手段)', r:'バス...きました'},
+            {mode:'g', pre:'日本語', post:'話します。', a:['で','de'], desc:'用日文說話 (語言手段)', r:'にほんご...はなします'},
+            {mode:'g', pre:'ご飯', post:'食べます。', a:['を','o','wo'], desc:'吃飯 (受詞)', r:'ごはん...たべます'},
+            {mode:'g', pre:'図書館', post:'勉強します。', a:['で','de'], desc:'在圖書館唸書 (動作場所)', r:'としょかん...べんきょうします'},
+            {mode:'g', pre:'田中さん', post:'います。', a:['が','ga'], desc:'田中先生在 (存在主詞)', r:'たなかさん...います'},
+            {mode:'g', pre:'机の上', post:'猫がいます。', a:['に','ni'], desc:'桌子上...有貓 (存在場所)', r:'つくえのうえ...ねこ'},
+            {mode:'g', pre:'東京', post:'大阪まで。', a:['から','kara'], desc:'"從"東京到大阪', r:'とうきょう...おおさか'},
+            {mode:'g', pre:'明日一緒に', post:'ませんか。', a:['いき','iki'], desc:'明天要不要一起"去"呢？ (行きます的邀請形)', r:'あしたいっしょに...'},
+            {mode:'g', pre:'音楽を', post:'ながら、勉強します。', a:['きき','kiki'], desc:'一邊"聽"音樂，一邊唸書', r:'おんがく...べんきょう'},
         ];
 
-        let currentQ = {};
-        const qText = document.getElementById('question-text');
-        const uInput = document.getElementById('user-input');
-        const rMsg = document.getElementById('result-msg');
-        const app = document.getElementById('app');
-        const fakeLog = document.getElementById('fake-log');
+        // ------------------------------------------
+        // ENGINE LOGIC
+        // ------------------------------------------
+        const codeContainer = document.getElementById('code-container');
+        const progressIndicator = document.getElementById('progress-indicator');
+        const bossScreen = document.getElementById('boss-screen');
+        let currentIdx = 0;
+        let correctCount = 0;
         let isBossMode = false;
 
-        function initGame() {
-            nextQuestion();
-            uInput.addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') {
-                    checkAnswer();
-                }
-            });
-            // 聚焦輸入框
-            uInput.focus();
+        // Shuffle logic
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
         }
 
-        function nextQuestion() {
-            const randomIndex = Math.floor(Math.random() * questionBank.length);
-            currentQ = questionBank[randomIndex];
-            qText.innerText = currentQ.q;
-            uInput.value = '';
-            rMsg.innerHTML = `<span class="comment">// Hint: ${currentQ.hint}</span>`;
-        }
+        // Initialize queue
+        let queue = shuffle([...db]);
 
-        function checkAnswer() {
-            const val = uInput.value.trim().toLowerCase();
-            // 這裡做簡單的寬鬆比對，你可以改得更嚴格
-            if (val === currentQ.a.toLowerCase()) {
-                rMsg.innerHTML = `<span class="comment" style="color: #6a9955;">// Correct! Next...</span>`;
-                setTimeout(nextQuestion, 800);
+        function renderQuestion() {
+            if (queue.length === 0) {
+                queue = shuffle([...db]);
+            }
+            
+            const item = queue.pop();
+            currentIdx++;
+            
+            // Randomly generate line number
+            const lineNum = 10 + Math.floor(Math.random() * 50);
+
+            let html = '';
+
+            if (item.mode === 'g') {
+                // Grammar Mode (With reading help in comment)
+                html = `
+<div class="line"><span class="ln">${lineNum}</span><span class="code"><span class="doc">/**</span></span></div>
+<div class="line"><span class="ln">${lineNum+1}</span><span class="code"><span class="doc"> * Grammar: ${item.desc}</span></span></div>
+<div class="line"><span class="ln">${lineNum+2}</span><span class="code"><span class="doc"> * Reading: ${item.r}</span></span></div>
+<div class="line"><span class="ln">${lineNum+3}</span><span class="code"><span class="doc"> */</span></span></div>
+<div class="line"><span class="ln">${lineNum+4}</span><span class="code"><span class="k">const</span> <span class="v">sentence</span> = <span class="s">"${item.pre} <input id="ans-input" autocomplete="off" style="width:50px; text-align:center;"> ${item.post}"</span>;</span></div>
+<div class="line"><span class="ln">${lineNum+5}</span><span class="code"><span class="v">console</span>.<span class="f">log</span>(<span class="v">sentence</span>);</span></div>
+<div class="line"><span class="ln">${lineNum+6}</span><span class="code" id="feedback"></span></div>`;
             } else {
-                rMsg.innerHTML = `<span class="comment" style="color: #f44747;">// Error: Expected "${currentQ.a}"</span>`;
+                // Vocabulary Mode
+                let typeStr = 'any';
+                if(item.t === 'n') typeStr = 'Noun';
+                if(item.t === 'v') typeStr = 'Verb';
+                if(item.t === 'adj') typeStr = 'Adjective';
+                if(item.t === 'adv') typeStr = 'Adverb';
+
+                html = `
+<div class="line"><span class="ln">${lineNum}</span><span class="code"><span class="doc">/**</span></span></div>
+<div class="line"><span class="ln">${lineNum+1}</span><span class="code"><span class="doc"> * Reading: ${item.r} </span></span></div>
+<div class="line"><span class="ln">${lineNum+2}</span><span class="code"><span class="doc"> * Hint:    ${item.h} </span></span></div>
+<div class="line"><span class="ln">${lineNum+3}</span><span class="code"><span class="doc"> */</span></span></div>
+<div class="line"><span class="ln">${lineNum+4}</span><span class="code"><span class="k">export</span> <span class="k">const</span> <span class="v">${item.k}</span>: <span class="t">${typeStr}</span> = <span class="s">"<input id="ans-input" autocomplete="off" placeholder="...">"</span>;</span></div>
+<div class="line"><span class="ln">${lineNum+5}</span><span class="code" id="feedback"></span></div>`;
+            }
+
+            codeContainer.innerHTML = html;
+            
+            // Setup Input
+            const input = document.getElementById('ans-input');
+            input.focus();
+            input.dataset.answers = JSON.stringify(item.a);
+            
+            input.addEventListener('keydown', (e) => {
+                if(e.key === 'Enter') checkAnswer(input);
+            });
+            
+            progressIndicator.innerText = `Ln ${lineNum+4}, Col 12`;
+        }
+
+        function checkAnswer(input) {
+            const userVal = input.value.trim().toLowerCase();
+            const answers = JSON.parse(input.dataset.answers);
+            const feedback = document.getElementById('feedback');
+            
+            const correct = answers.some(a => a.toLowerCase() === userVal);
+
+            if (correct) {
+                input.style.color = '#b5cea8'; // Greenish
+                feedback.innerHTML = `<span class="c">// OK. Saved.</span>`;
+                correctCount++;
+                setTimeout(renderQuestion, 600);
+            } else {
+                input.style.color = '#f44747'; // Red
+                input.style.borderBottom = '1px solid #f44747';
+                feedback.innerHTML = `<span class="c" style="color:#f44747">// Error: Expected [${answers[0]}]</span>`;
             }
         }
 
-        // 老闆鍵邏輯 (按 ESC 切換)
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 isBossMode = !isBossMode;
-                if (isBossMode) {
-                    app.style.display = 'none';
-                    fakeLog.style.display = 'block';
-                    document.title = 'Building...';
+                if(isBossMode) {
+                    bossScreen.style.display = 'block';
+                    document.title = 'Command Prompt';
                 } else {
-                    app.style.display = 'flex';
-                    fakeLog.style.display = 'none';
-                    document.title = 'main.py - Visual Studio Code';
-                    uInput.focus();
+                    bossScreen.style.display = 'none';
+                    document.title = 'vocabulary.ts - Project N5';
+                    const input = document.getElementById('ans-input');
+                    if(input) input.focus();
                 }
             }
         });
 
-        initGame();
+        renderQuestion();
+
     </script>
 </body>
 </html>
