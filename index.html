@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>main.py - Visual Studio Code</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --text-color: #d4d4d4;
+            --keyword: #c586c0;
+            --string: #ce9178;
+            --function: #dcdcaa;
+            --comment: #6a9955;
+            --line-number: #858585;
+            --cursor: #569cd6;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Consolas', 'Courier New', monospace;
+            margin: 0;
+            padding: 20px;
+            height: 100vh;
+            overflow: hidden;
+            font-size: 16px;
+        }
+        .editor {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .line {
+            display: flex;
+        }
+        .line-num {
+            color: var(--line-number);
+            width: 40px;
+            text-align: right;
+            margin-right: 15px;
+            user-select: none;
+        }
+        .code-content {
+            flex: 1;
+        }
+        .keyword { color: var(--keyword); }
+        .string { color: var(--string); }
+        .function { color: var(--function); }
+        .comment { color: var(--comment); }
+        
+        input {
+            background: transparent;
+            border: none;
+            color: var(--string);
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+            width: 300px;
+        }
+
+        /* 隱藏區塊 (老闆鍵觸發) */
+        #fake-log {
+            display: none;
+            color: #ccc;
+            font-size: 12px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="editor">
+        <div style="margin-bottom: 20px; color: #ccc; font-size: 14px;">
+            <span>index.js</span> <span style="margin-left: 10px; opacity: 0.5;">×</span>
+        </div>
+
+        <div class="line">
+            <span class="line-num">1</span>
+            <span class="code-content"><span class="keyword">const</span> <span class="function">currentLevel</span> = <span class="string">"N5"</span>;</span>
+        </div>
+        <div class="line">
+            <span class="line-num">2</span>
+            <span class="code-content"><span class="comment">// TODO: Fix the bug below</span></span>
+        </div>
+        <div class="line">
+            <span class="line-num">3</span>
+            <span class="code-content"></span>
+        </div>
+        
+        <div class="line">
+            <span class="line-num">4</span>
+            <span class="code-content">
+                <span class="keyword">function</span> <span class="function">translate</span>() {
+            </span>
+        </div>
+        <div class="line">
+            <span class="line-num">5</span>
+            <span class="code-content" style="padding-left: 20px;">
+                <span class="keyword">let</span> question = <span class="string" id="question-text">"..."</span>; <span class="comment">// 請翻譯</span>
+            </span>
+        </div>
+        <div class="line">
+            <span class="line-num">6</span>
+            <span class="code-content" style="padding-left: 20px;">
+                <span class="keyword">let</span> answer = <span class="string">"</span><input type="text" id="user-input" autocomplete="off" placeholder="..."> <span class="string">"</span>;
+            </span>
+        </div>
+        <div class="line">
+            <span class="line-num">7</span>
+            <span class="code-content">
+                }
+            </span>
+        </div>
+        <div class="line">
+            <span class="line-num">8</span>
+            <span class="code-content"></span>
+        </div>
+        <div class="line">
+            <span class="line-num">9</span>
+            <span class="code-content" id="result-msg">
+                <span class="comment">// Waiting for input...</span>
+            </span>
+        </div>
+    </div>
+
+    <div id="fake-log">
+Running build task...
+[INFO] 2024-11-28 10:00:01 Compiling assets...
+[WARN] DeprecationWarning: Buffer() is deprecated due to security and usability issues.
+[INFO] Build completed in 3402ms.
+[INFO] Starting server on port 8080...
+[DEBUG] Connection established.
+[INFO] Fetching data from database...
+... (Press Esc again to return)
+    </div>
+
+    <script>
+        // --- N5 資料庫 (可以在這裡擴充) ---
+        // type: 'vocab' (單字) 或 'grammar' (文法)
+        const questionBank = [
+            { q: "りんご", a: "apple", hint: "名詞: 蘋果" },
+            { q: "たべる", a: "eat", hint: "動詞: 吃" },
+            { q: "わたし", a: "I", hint: "代名詞: 我" },
+            { q: "ねこ", a: "cat", hint: "名詞: 貓" },
+            { q: "本 (ほん)", a: "book", hint: "名詞: 書" },
+            { q: "これはペンです", a: "this is a pen", hint: "文法: 這是筆" }
+        ];
+
+        let currentQ = {};
+        const qText = document.getElementById('question-text');
+        const uInput = document.getElementById('user-input');
+        const rMsg = document.getElementById('result-msg');
+        const app = document.getElementById('app');
+        const fakeLog = document.getElementById('fake-log');
+        let isBossMode = false;
+
+        function initGame() {
+            nextQuestion();
+            uInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    checkAnswer();
+                }
+            });
+            // 聚焦輸入框
+            uInput.focus();
+        }
+
+        function nextQuestion() {
+            const randomIndex = Math.floor(Math.random() * questionBank.length);
+            currentQ = questionBank[randomIndex];
+            qText.innerText = currentQ.q;
+            uInput.value = '';
+            rMsg.innerHTML = `<span class="comment">// Hint: ${currentQ.hint}</span>`;
+        }
+
+        function checkAnswer() {
+            const val = uInput.value.trim().toLowerCase();
+            // 這裡做簡單的寬鬆比對，你可以改得更嚴格
+            if (val === currentQ.a.toLowerCase()) {
+                rMsg.innerHTML = `<span class="comment" style="color: #6a9955;">// Correct! Next...</span>`;
+                setTimeout(nextQuestion, 800);
+            } else {
+                rMsg.innerHTML = `<span class="comment" style="color: #f44747;">// Error: Expected "${currentQ.a}"</span>`;
+            }
+        }
+
+        // 老闆鍵邏輯 (按 ESC 切換)
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                isBossMode = !isBossMode;
+                if (isBossMode) {
+                    app.style.display = 'none';
+                    fakeLog.style.display = 'block';
+                    document.title = 'Building...';
+                } else {
+                    app.style.display = 'flex';
+                    fakeLog.style.display = 'none';
+                    document.title = 'main.py - Visual Studio Code';
+                    uInput.focus();
+                }
+            }
+        });
+
+        initGame();
+    </script>
+</body>
+</html>
