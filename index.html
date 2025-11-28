@@ -1,15 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vocabulary.ts - Project N5</title>
+    <style>
+        :root {
+            --bg: #1e1e1e;
+            --fg: #d4d4d4;
+            --kw: #c586c0; /* Keyword */
+            --var: #9cdcfe; /* Variable */
+            --fn: #dcdcaa; /* Function */
+            --str: #ce9178; /* String */
+            --type: #4ec9b0; /* Type */
+            --num: #b5cea8; /* Number */
+            --cm: #6a9955; /* Comment */
+            --sel: #264f78; /* Selection */
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: Consolas, 'Courier New', monospace;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            font-size: 15px;
+        }
+        /* Layout */
+        .layout { display: flex; flex: 1; height: 100%; }
+        .sidebar {
+            width: 50px;
+            background: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 10px;
+            color: #858585;
+        }
+        .file-explorer {
+            width: 200px;
+            background: #252526;
+            display: none; 
+        }
+        @media(min-width: 800px) { .file-explorer { display: block; } }
+        
+        .editor { flex: 1; display: flex; flex-direction: column; background: var(--bg); position: relative;}
+        
+        /* Tabs */
+        .tabs { display: flex; background: #252526; height: 35px; overflow: hidden; }
+        .tab {
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+            background: var(--bg);
+            color: #fff;
+            font-size: 13px;
+            border-top: 2px solid #007acc;
+            cursor: pointer;
+        }
+        .tab.inactive { background: #2d2d2d; color: #969696; border-top: 2px solid transparent; }
+        
+        /* Code Area */
+        .code-area { flex: 1; padding: 10px 0; overflow-y: auto; font-size: 16px; line-height: 1.5; }
+        .line { display: flex; padding: 0 5px; }
+        .ln { 
+            width: 40px; 
+            text-align: right; 
+            padding-right: 15px; 
+            color: #858585; 
+            user-select: none; 
+            font-size: 14px;
+        }
+        .code { flex: 1; white-space: pre-wrap; word-break: break-all; }
+
+        /* Inputs */
+        input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--cm);
+            color: var(--str);
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+            min-width: 100px;
+            text-align: left;
+        }
+        input:focus { border-bottom: 1px solid var(--fg); }
+        
+        /* Status Bar */
+        .status-bar {
+            height: 22px;
+            background: #007acc;
+            color: white;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            cursor: default;
+        }
+
+        /* Syntax Highlighting Classes */
+        .k { color: var(--kw); }
+        .v { color: var(--var); }
+        .f { color: var(--fn); }
+        .s { color: var(--str); }
+        .t { color: var(--type); }
+        .c { color: var(--cm); }
+        .doc { color: #5f9e5c; font-style: italic; } 
+        
+        /* Boss Mode Overlay */
+        #boss-screen {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            color: #ccc;
+            padding: 20px;
+            font-family: monospace;
+            z-index: 9999;
+            font-size: 12px;
+            white-space: pre;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="layout" id="main-layout">
+        <div class="sidebar">
+            <div style="margin-bottom: 20px; font-size: 20px;">📄</div>
+            <div style="margin-bottom: 20px; font-size: 20px;">🔍</div>
+            <div style="margin-bottom: 20px; font-size: 20px;">🐙</div>
+        </div>
+        
+        <div class="file-explorer">
+            <div style="padding: 10px; font-size: 11px; font-weight: bold; color: #bbb;">EXPLORER</div>
+            <div style="padding: 5px 20px; color: #ccc;">▼ PROJECT-N5</div>
+            <div style="padding: 2px 30px; color: #4ec9b0;">TS vocabulary.ts</div>
+            <div style="padding: 2px 30px; color: #d4d4d4;"># readme.md</div>
+            <div style="padding: 2px 30px; color: #d4d4d4;">{} package.json</div>
+        </div>
+
+        <div class="editor">
+            <div class="tabs">
+                <div class="tab">
+                    <span style="color:#4ec9b0; margin-right:5px;">TS</span> vocabulary.ts <span style="margin-left:10px; font-size:16px;">×</span>
+                </div>
+                <div class="tab inactive">grammar.spec.ts</div>
+            </div>
+
+            <div class="code-area" id="code-container">
+                </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div style="display:flex; gap:15px;">
+            <span>main*</span>
+            <span>0 errors, 0 warnings</span>
+        </div>
+        <div style="display:flex; gap:15px;">
+            <span id="progress-indicator">Ln 12, Col 45</span>
+            <span>UTF-8</span>
+            <span>TypeScript</span>
+            <span>Prettier</span>
+        </div>
+    </div>
+
+    <div id="boss-screen">
+C:\Users\Admin> npm run dev
+> n5-app@0.0.0 dev
+> vite
+
+  VITE v4.3.9  ready in 420 ms
+  ➜  Local:   http://localhost:5173/
+[INFO] [14:02:23] GET /src/main.ts 200 - 15ms
+...
+    </div>
+
     <script>
         // ==========================================
-        // 資料庫結構 (與之前相同，這裡省略重複的資料定義，請保留原本的 db 陣列)
-        // 為了節省版面，請使用上一版完整的 db 陣列
+        // 完整資料庫 (V3.2)
         // ==========================================
-        
-        // --- 請確保這裡有原本的 const db = [...] 資料 ---
-        // (如果你是直接複製，這裡我預設保留上面那份完整的資料，
-        //  若需要我再貼一次完整 500 字的 db，請告訴我)
-        
-        // 這裡僅列出邏輯修正所需的變數與函式
-        
+        const db = [
+            // --- 1. 代名詞 & 人物 ---
+            {t:'n', k:'私', r:'わたし', a:['I','我'], h:'我'},
+            {t:'n', k:'あなた', r:'あなた', a:['you','你'], h:'你'},
+            {t:'n', k:'先生', r:'せんせい', a:['teacher','老師'], h:'老師/醫生'},
+            {t:'n', k:'学生', r:'がくせい', a:['student','學生'], h:'學生'},
+            {t:'n', k:'会社員', r:'かいしゃいん', a:['employee','公司職員','上班族'], h:'公司職員'},
+            {t:'n', k:'人', r:'ひと', a:['person','人'], h:'人'},
+            {t:'n', k:'子供', r:'こども', a:['child','小孩'], h:'小孩'},
+            {t:'n', k:'誰', r:'だれ', a:['who','誰'], h:'誰'},
+
+            // --- 2. 家族 ---
+            {t:'n', k:'父', r:'ちち', a:['father','dad','爸爸','家父'], h:'(我的)父親'},
+            {t:'n', k:'母', r:'はは', a:['mother','mom','媽媽','家母'], h:'(我的)母親'},
+            {t:'n', k:'兄', r:'あに', a:['older brother','哥哥'], h:'(我的)哥哥'},
+            {t:'n', k:'姉', r:'あね', a:['older sister','姊姊'], h:'(我的)姊姊'},
+            {t:'n', k:'弟', r:'おとうと', a:['younger brother','弟弟'], h:'(我的)弟弟'},
+            {t:'n', k:'妹', r:'いもうと', a:['younger sister','妹妹'], h:'(我的)妹妹'},
+            {t:'n', k:'お父さん', r:'おとうさん', a:['father','爸爸'], h:'(別人的)父親'},
+            {t:'n', k:'お母さん', r:'おかあさん', a:['mother','媽媽'], h:'(別人的)母親'},
+
+            // --- 3. 時間 ---
+            {t:'n', k:'今', r:'いま', a:['now','現在'], h:'現在'},
+            {t:'n', k:'今日', r:'きょう', a:['today','今天'], h:'今天'},
+            {t:'n', k:'昨日', r:'きのう', a:['yesterday','昨天'], h:'昨天'},
+            {t:'n', k:'明日', r:'あした', a:['tomorrow','明天'], h:'明天'},
+            {t:'n', k:'朝', r:'あさ', a:['morning','早上'], h:'早上'},
+            {t:'n', k:'昼', r:'ひる', a:['noon','daytime','中午'], h:'中午/白天'},
+            {t:'n', k:'晩', r:'ばん', a:['night','evening','晚上'], h:'晚上'},
+            {t:'n', k:'毎日', r:'まいにち', a:['everyday','每天'], h:'每天'},
+            {t:'n', k:'来週', r:'らいしゅう', a:['next week','下週'], h:'下週'},
+            {t:'n', k:'いつ', r:'いつ', a:['when','何時'], h:'什麼時候'},
+
+            // --- 4. 場所 ---
+            {t:'n', k:'学校', r:'がっこう', a:['school','學校'], h:'學校'},
+            {t:'n', k:'教室', r:'きょうしつ', a:['classroom','教室'], h:'教室'},
+            {t:'n', k:'食堂', r:'しょくどう', a:['canteen','食堂'], h:'食堂'},
+            {t:'n', k:'トイレ', r:'トイレ', a:['toilet','廁所'], h:'廁所'},
+            {t:'n', k:'病院', r:'びょういん', a:['hospital','醫院'], h:'醫院'},
+            {t:'n', k:'銀行', r:'ぎんこう', a:['bank','銀行'], h:'銀行'},
+            {t:'n', k:'図書館', r:'としょかん', a:['library','圖書館'], h:'圖書館'},
+            {t:'n', k:'上', r:'うえ', a:['up','above','上'], h:'上面'},
+            {t:'n', k:'下', r:'した', a:['down','below','下'], h:'下面'},
+            {t:'n', k:'中', r:'なか', a:['inside','中'], h:'裡面'},
+            {t:'n', k:'外', r:'そと', a:['outside','外'], h:'外面'},
+
+            // --- 5. 食物/物品 ---
+            {t:'n', k:'ご飯', r:'ごはん', a:['rice','meal','飯'], h:'飯/餐'},
+            {t:'n', k:'肉', r:'にく', a:['meat','肉'], h:'肉'},
+            {t:'n', k:'魚', r:'さかな', a:['fish','魚'], h:'魚'},
+            {t:'n', k:'水', r:'みず', a:['water','水'], h:'水'},
+            {t:'n', k:'本', r:'ほん', a:['book','書'], h:'書'},
+            {t:'n', k:'車', r:'くるま', a:['car','車'], h:'車'},
+            {t:'n', k:'手紙', r:'てがみ', a:['letter','信'], h:'信'},
+
+            // --- 6. 動詞 ---
+            {t:'v', k:'起きます', r:'おきます', a:['wake up','起床'], h:'起床'},
+            {t:'v', k:'寝ます', r:'ねます', a:['sleep','睡覺'], h:'睡覺'},
+            {t:'v', k:'働きます', r:'はたらきます', a:['work','工作'], h:'工作'},
+            {t:'v', k:'行きます', r:'いきます', a:['go','去'], h:'去'},
+            {t:'v', k:'来ます', r:'きます', a:['come','來'], h:'來'},
+            {t:'v', k:'帰ります', r:'かえります', a:['return','回家'], h:'回家'},
+            {t:'v', k:'食べます', r:'たべます', a:['eat','吃'], h:'吃'},
+            {t:'v', k:'飲みます', r:'のみます', a:['drink','喝'], h:'喝'},
+            {t:'v', k:'買います', r:'かいます', a:['buy','買'], h:'買'},
+            {t:'v', k:'見ます', r:'みます', a:['watch','看'], h:'看'},
+            {t:'v', k:'聞きます', r:'ききます', a:['listen','hear','聽','問'], h:'聽/問'},
+            {t:'v', k:'読みます', r:'よみます', a:['read','讀'], h:'閱讀'},
+            {t:'v', k:'書きます', r:'かきます', a:['write','寫'], h:'寫'},
+            {t:'v', k:'分かります', r:'わかります', a:['understand','懂'], h:'懂了'},
+            {t:'v', k:'あります', r:'あります', a:['have','exists','有','在'], h:'有/在 (無生命)'},
+            {t:'v', k:'います', r:'います', a:['have','exists','有','在'], h:'有/在 (有生命)'},
+
+            // --- 7. 形容詞/副詞 ---
+            {t:'adj', k:'大きい', r:'おおきい', a:['big','大'], h:'大的'},
+            {t:'adj', k:'小さい', r:'ちいさい', a:['small','小'], h:'小的'},
+            {t:'adj', k:'新しい', r:'あたらしい', a:['new','新'], h:'新的'},
+            {t:'adj', k:'古い', r:'ふるい', a:['old','舊'], h:'舊的'},
+            {t:'adj', k:'いい', r:'いい', a:['good','好'], h:'好的'},
+            {t:'adj', k:'暑い', r:'あつい', a:['hot','熱'], h:'熱的'},
+            {t:'adj', k:'寒い', r:'さむい', a:['cold','冷'], h:'冷的'},
+            {t:'adj', k:'おいしい', r:'おいしい', a:['delicious','好吃'], h:'好吃的'},
+            {t:'adj', k:'楽しい', r:'たのしい', a:['fun','快樂'], h:'愉快的'},
+            {t:'adj', k:'綺麗', r:'きれい', a:['beautiful','clean','漂亮','乾淨'], h:'漂亮的'},
+            {t:'adj', k:'静か', r:'しずか', a:['quiet','安靜'], h:'安靜的'},
+            {t:'adj', k:'好き', r:'すき', a:['like','喜歡'], h:'喜歡的'},
+            {t:'adv', k:'とても', r:'とても', a:['very','非常'], h:'非常'},
+            {t:'adv', k:'あまり', r:'あまり', a:['not very','不太'], h:'不太 (接否定)'},
+
+            // --- 8. 文法句型 ---
+            {mode:'g', pre:'私', post:'学生です。', a:['は','wa'], desc:'我是學生 (主題標記)', r:'わたし...がくせい'},
+            {mode:'g', pre:'これ', post:'本ですか。', a:['は','wa'], desc:'這是書嗎？', r:'これ...ほん'},
+            {mode:'g', pre:'トイレ', post:'どこですか。', a:['は','wa'], desc:'廁所在哪裡？', r:'トイレ...どこ'},
+            {mode:'g', pre:'3時', post:'寝ます。', a:['に','ni'], desc:'三點睡覺 (時間點)', r:'さんじ...ねます'},
+            {mode:'g', pre:'学校', post:'行きます。', a:['へ','に','e','ni'], desc:'去學校 (移動方向)', r:'がっこう...いきます'},
+            {mode:'g', pre:'バス', post:'来ました。', a:['で','de'], desc:'搭公車來的 (交通手段)', r:'バス...きました'},
+            {mode:'g', pre:'日本語', post:'話します。', a:['で','de'], desc:'用日文說話 (語言手段)', r:'にほんご...はなします'},
+            {mode:'g', pre:'ご飯', post:'食べます。', a:['を','o','wo'], desc:'吃飯 (受詞)', r:'ごはん...たべます'},
+            {mode:'g', pre:'図書館', post:'勉強します。', a:['で','de'], desc:'在圖書館唸書 (動作場所)', r:'としょかん...べんきょうします'},
+            {mode:'g', pre:'田中さん', post:'います。', a:['が','ga'], desc:'田中先生在 (存在主詞)', r:'たなかさん...います'},
+            {mode:'g', pre:'机の上', post:'猫がいます。', a:['に','ni'], desc:'桌子上...有貓 (存在場所)', r:'つくえのうえ...ねこ'},
+            {mode:'g', pre:'東京', post:'大阪まで。', a:['から','kara'], desc:'"從"東京到大阪', r:'とうきょう...おおさか'},
+            {mode:'g', pre:'明日一緒に', post:'ませんか。', a:['いき','iki'], desc:'明天要不要一起"去"呢？ (行きます的邀請形)', r:'あしたいっしょに...'},
+            {mode:'g', pre:'音楽を', post:'ながら、勉強します。', a:['きき','kiki'], desc:'一邊"聽"音樂，一邊唸書', r:'おんがく...べんきょう'}
+        ];
+
+        // ------------------------------------------
+        // 系統邏輯
+        // ------------------------------------------
         const codeContainer = document.getElementById('code-container');
         const progressIndicator = document.getElementById('progress-indicator');
         const bossScreen = document.getElementById('boss-screen');
@@ -17,7 +301,7 @@
         let correctCount = 0;
         let isBossMode = false;
         
-        // 狀態控制： 'input' (輸入中) 或 'result' (已批改，等待下一題)
+        // 狀態控制：'input' = 輸入中, 'result' = 顯示結果(等待下一題)
         let gameState = 'input'; 
 
         function shuffle(array) {
@@ -31,8 +315,7 @@
         let queue = shuffle([...db]);
 
         function renderQuestion() {
-            // 重置狀態為輸入模式
-            gameState = 'input'; 
+            gameState = 'input'; // 重置為輸入模式
 
             if (queue.length === 0) {
                 queue = shuffle([...db]);
@@ -41,6 +324,7 @@
             const item = queue.pop();
             currentIdx++;
             const lineNum = 10 + Math.floor(Math.random() * 50);
+
             let html = '';
 
             if (item.mode === 'g') {
@@ -69,14 +353,12 @@
             input.focus();
             input.dataset.answers = JSON.stringify(item.a);
             
-            // 監聽 Enter 鍵
+            // 監聽 Enter 鍵 (雙重邏輯)
             input.addEventListener('keydown', (e) => {
                 if(e.key === 'Enter') {
                     if (gameState === 'input') {
-                        // 第一次按：檢查答案
                         checkAnswer(input);
                     } else {
-                        // 第二次按：下一題
                         renderQuestion();
                     }
                 }
@@ -92,21 +374,15 @@
             
             const correct = answers.some(a => a.toLowerCase() === userVal);
 
-            // 切換狀態，下次按 Enter 就會跳下一題
-            gameState = 'result'; 
+            gameState = 'result'; // 切換狀態
 
             if (correct) {
                 input.style.color = '#b5cea8'; // Greenish
-                // 顯示按 Enter 繼續的提示
                 feedback.innerHTML = `<span class="c">// OK. Saved. <span style="opacity:0.5; font-size:0.8em;">(Press Enter)</span></span>`;
                 correctCount++;
-                // 這裡拿掉 setTimeout，改由使用者手動按 Enter 決定速度
-                // 如果你想保留「答對自動跳轉，但按 Enter 可以加速」，可以保留下面這行：
-                // setTimeout(() => { if(gameState==='result') renderQuestion() }, 800); 
             } else {
                 input.style.color = '#f44747'; // Red
                 input.style.borderBottom = '1px solid #f44747';
-                // 顯示正確答案
                 feedback.innerHTML = `<span class="c" style="color:#f44747">// Error: Expected "${answers[0]}" <span style="color:#858585;">(Press Enter)</span></span>`;
             }
         }
@@ -125,12 +401,14 @@
                     if(input) input.focus();
                 }
             }
-            // 全域 Enter 支援 (防止焦點跑掉時按 Enter 沒反應)
+            // 全域 Enter (防止焦點不在輸入框時無法下一題)
             if (e.key === 'Enter' && gameState === 'result') {
                 renderQuestion();
             }
         });
 
-        // 初始化
+        // 啟動
         renderQuestion();
     </script>
+</body>
+</html>
