@@ -8,14 +8,14 @@
         :root {
             --bg: #1e1e1e;
             --fg: #d4d4d4;
-            --kw: #c586c0; /* Keyword */
-            --var: #9cdcfe; /* Variable */
-            --fn: #dcdcaa; /* Function */
-            --str: #ce9178; /* String */
-            --type: #4ec9b0; /* Type */
-            --num: #b5cea8; /* Number */
-            --cm: #6a9955; /* Comment */
-            --sel: #264f78; /* Selection */
+            --kw: #c586c0;
+            --var: #9cdcfe;
+            --fn: #dcdcaa;
+            --str: #ce9178;
+            --type: #4ec9b0;
+            --num: #b5cea8;
+            --cm: #6a9955;
+            --sel: #264f78;
         }
         * { box-sizing: border-box; }
         body {
@@ -29,7 +29,6 @@
             overflow: hidden;
             font-size: 15px;
         }
-        /* Layout */
         .layout { display: flex; flex: 1; height: 100%; }
         .sidebar {
             width: 50px;
@@ -43,13 +42,12 @@
         .file-explorer {
             width: 200px;
             background: #252526;
-            display: none; 
+            display: none;
         }
         @media(min-width: 800px) { .file-explorer { display: block; } }
-        
-        .editor { flex: 1; display: flex; flex-direction: column; background: var(--bg); position: relative;}
-        
-        /* Tabs */
+
+        .editor { flex: 1; display: flex; flex-direction: column; background: var(--bg); position: relative; }
+
         .tabs { display: flex; background: #252526; height: 35px; overflow: hidden; }
         .tab {
             padding: 0 15px;
@@ -62,21 +60,19 @@
             cursor: pointer;
         }
         .tab.inactive { background: #2d2d2d; color: #969696; border-top: 2px solid transparent; }
-        
-        /* Code Area */
+
         .code-area { flex: 1; padding: 10px 0; overflow-y: auto; font-size: 16px; line-height: 1.5; }
         .line { display: flex; padding: 0 5px; }
-        .ln { 
-            width: 40px; 
-            text-align: right; 
-            padding-right: 15px; 
-            color: #858585; 
-            user-select: none; 
+        .ln {
+            width: 40px;
+            text-align: right;
+            padding-right: 15px;
+            color: #858585;
+            user-select: none;
             font-size: 14px;
         }
         .code { flex: 1; white-space: pre-wrap; word-break: break-all; }
 
-        /* Inputs */
         input {
             background: transparent;
             border: none;
@@ -89,8 +85,7 @@
             text-align: left;
         }
         input:focus { border-bottom: 1px solid var(--fg); }
-        
-        /* Status Bar */
+
         .status-bar {
             height: 22px;
             background: #007acc;
@@ -103,16 +98,58 @@
             cursor: default;
         }
 
-        /* Syntax Highlighting Classes */
         .k { color: var(--kw); }
         .v { color: var(--var); }
         .f { color: var(--fn); }
         .s { color: var(--str); }
         .t { color: var(--type); }
         .c { color: var(--cm); }
-        .doc { color: #5f9e5c; font-style: italic; } 
-        
-        /* Boss Mode Overlay */
+        .doc { color: #5f9e5c; font-style: italic; }
+
+        /* Speaker button */
+        .speak-btn {
+            cursor: pointer;
+            display: inline-block;
+            margin-left: 6px;
+            font-style: normal;
+            opacity: 0.55;
+            transition: opacity 0.15s, transform 0.1s;
+            user-select: none;
+            font-size: 0.95em;
+        }
+        .speak-btn:hover { opacity: 1; transform: scale(1.25); }
+        .speak-btn:active { transform: scale(0.85); opacity: 1; }
+        .speak-btn.speaking { opacity: 1; animation: speakPulse 0.4s ease; }
+        @keyframes speakPulse {
+            0%   { transform: scale(1); }
+            40%  { transform: scale(1.4); }
+            100% { transform: scale(1); }
+        }
+
+        /* Auto-pronounce toggle in status bar */
+        #auto-speak-btn {
+            cursor: pointer;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 3px;
+            color: white;
+            font-size: 11px;
+            padding: 1px 6px;
+            transition: background 0.15s;
+            user-select: none;
+        }
+        #auto-speak-btn:hover { background: rgba(255,255,255,0.3); }
+        #auto-speak-btn.on { background: rgba(255,255,255,0.35); }
+
+        /* Kana character display */
+        .kana-char {
+            font-size: 2.2em;
+            vertical-align: middle;
+            line-height: 1;
+            margin-right: 8px;
+        }
+
+        /* Boss Mode */
         #boss-screen {
             display: none;
             position: fixed;
@@ -129,48 +166,50 @@
 </head>
 <body>
 
-    <div class="layout" id="main-layout">
-        <div class="sidebar">
-            <div style="margin-bottom: 20px; font-size: 20px;">📄</div>
-            <div style="margin-bottom: 20px; font-size: 20px;">🔍</div>
-            <div style="margin-bottom: 20px; font-size: 20px;">🐙</div>
-        </div>
-        
-        <div class="file-explorer">
-            <div style="padding: 10px; font-size: 11px; font-weight: bold; color: #bbb;">EXPLORER</div>
-            <div style="padding: 5px 20px; color: #ccc;">▼ PROJECT-N5</div>
-            <div style="padding: 2px 30px; color: #4ec9b0;">TS vocabulary.ts</div>
-            <div style="padding: 2px 30px; color: #d4d4d4;"># readme.md</div>
-            <div style="padding: 2px 30px; color: #d4d4d4;">{} package.json</div>
-        </div>
+<div class="layout" id="main-layout">
+    <div class="sidebar">
+        <div style="margin-bottom: 20px; font-size: 20px;">📄</div>
+        <div style="margin-bottom: 20px; font-size: 20px;">🔍</div>
+        <div style="margin-bottom: 20px; font-size: 20px;">🐙</div>
+    </div>
 
-        <div class="editor">
-            <div class="tabs">
-                <div class="tab">
-                    <span style="color:#4ec9b0; margin-right:5px;">TS</span> vocabulary.ts <span style="margin-left:10px; font-size:16px;">×</span>
-                </div>
-                <div class="tab inactive">grammar.spec.ts</div>
+    <div class="file-explorer">
+        <div style="padding: 10px; font-size: 11px; font-weight: bold; color: #bbb;">EXPLORER</div>
+        <div style="padding: 5px 20px; color: #ccc;">▼ PROJECT-N5</div>
+        <div style="padding: 2px 30px; color: #4ec9b0;">TS vocabulary.ts</div>
+        <div style="padding: 2px 30px; color: #4ec9b0;">TS gojuuon.ts</div>
+        <div style="padding: 2px 30px; color: #d4d4d4;"># readme.md</div>
+        <div style="padding: 2px 30px; color: #d4d4d4;">{} package.json</div>
+    </div>
+
+    <div class="editor">
+        <div class="tabs">
+            <div class="tab">
+                <span style="color:#4ec9b0; margin-right:5px;">TS</span> vocabulary.ts <span style="margin-left:10px; font-size:16px;">×</span>
             </div>
-
-            <div class="code-area" id="code-container">
-                </div>
+            <div class="tab inactive">gojuuon.ts</div>
+            <div class="tab inactive">grammar.spec.ts</div>
         </div>
+        <div class="code-area" id="code-container"></div>
     </div>
+</div>
 
-    <div class="status-bar">
-        <div style="display:flex; gap:15px;">
-            <span>main*</span>
-            <span>0 errors, 0 warnings</span>
-        </div>
-        <div style="display:flex; gap:15px;">
-            <span id="progress-indicator">Ln 12, Col 45</span>
-            <span>UTF-8</span>
-            <span>TypeScript</span>
-            <span>Prettier</span>
-        </div>
+<div class="status-bar">
+    <div style="display:flex; gap:15px; align-items:center;">
+        <span>main*</span>
+        <span>0 errors, 0 warnings</span>
+        <span id="db-count" style="opacity:0.75;"></span>
     </div>
+    <div style="display:flex; gap:12px; align-items:center;">
+        <span id="score-indicator">✓ 0</span>
+        <span id="progress-indicator">Ln 12, Col 45</span>
+        <button id="auto-speak-btn" title="自動發音開關">🔊 Auto</button>
+        <span>UTF-8</span>
+        <span>TypeScript</span>
+    </div>
+</div>
 
-    <div id="boss-screen">
+<div id="boss-screen">
 C:\Users\Admin> npm run dev
 > n5-app@0.0.0 dev
 > vite
@@ -179,236 +218,555 @@ C:\Users\Admin> npm run dev
   ➜  Local:   http://localhost:5173/
 [INFO] [14:02:23] GET /src/main.ts 200 - 15ms
 ...
-    </div>
+</div>
 
-    <script>
-        // ==========================================
-        // 完整資料庫 (V3.2)
-        // ==========================================
-        const db = [
-            // --- 1. 代名詞 & 人物 ---
-            {t:'n', k:'私', r:'わたし', a:['I','我'], h:'我'},
-            {t:'n', k:'あなた', r:'あなた', a:['you','你'], h:'你'},
-            {t:'n', k:'先生', r:'せんせい', a:['teacher','老師'], h:'老師/醫生'},
-            {t:'n', k:'学生', r:'がくせい', a:['student','學生'], h:'學生'},
-            {t:'n', k:'会社員', r:'かいしゃいん', a:['employee','公司職員','上班族'], h:'公司職員'},
-            {t:'n', k:'人', r:'ひと', a:['person','人'], h:'人'},
-            {t:'n', k:'子供', r:'こども', a:['child','小孩'], h:'小孩'},
-            {t:'n', k:'誰', r:'だれ', a:['who','誰'], h:'誰'},
+<script>
+// ==========================================
+// 完整資料庫 (V4.0) — 250+ 詞條
+// ==========================================
+const db = [
 
-            // --- 2. 家族 ---
-            {t:'n', k:'父', r:'ちち', a:['father','dad','爸爸','家父'], h:'(我的)父親'},
-            {t:'n', k:'母', r:'はは', a:['mother','mom','媽媽','家母'], h:'(我的)母親'},
-            {t:'n', k:'兄', r:'あに', a:['older brother','哥哥'], h:'(我的)哥哥'},
-            {t:'n', k:'姉', r:'あね', a:['older sister','姊姊'], h:'(我的)姊姊'},
-            {t:'n', k:'弟', r:'おとうと', a:['younger brother','弟弟'], h:'(我的)弟弟'},
-            {t:'n', k:'妹', r:'いもうと', a:['younger sister','妹妹'], h:'(我的)妹妹'},
-            {t:'n', k:'お父さん', r:'おとうさん', a:['father','爸爸'], h:'(別人的)父親'},
-            {t:'n', k:'お母さん', r:'おかあさん', a:['mother','媽媽'], h:'(別人的)母親'},
+    // =====================
+    // 50音 — 平假名
+    // =====================
+    {t:'kana', k:'あ', r:'a',   a:['a'],        h:'あ行 (A)'},
+    {t:'kana', k:'い', r:'i',   a:['i'],        h:'あ行 (I)'},
+    {t:'kana', k:'う', r:'u',   a:['u'],        h:'あ行 (U)'},
+    {t:'kana', k:'え', r:'e',   a:['e'],        h:'あ行 (E)'},
+    {t:'kana', k:'お', r:'o',   a:['o'],        h:'あ行 (O)'},
+    {t:'kana', k:'か', r:'ka',  a:['ka'],       h:'か行 (KA)'},
+    {t:'kana', k:'き', r:'ki',  a:['ki'],       h:'か行 (KI)'},
+    {t:'kana', k:'く', r:'ku',  a:['ku'],       h:'か行 (KU)'},
+    {t:'kana', k:'け', r:'ke',  a:['ke'],       h:'か行 (KE)'},
+    {t:'kana', k:'こ', r:'ko',  a:['ko'],       h:'か行 (KO)'},
+    {t:'kana', k:'さ', r:'sa',  a:['sa'],       h:'さ行 (SA)'},
+    {t:'kana', k:'し', r:'shi', a:['shi','si'], h:'さ行 (SHI)'},
+    {t:'kana', k:'す', r:'su',  a:['su'],       h:'さ行 (SU)'},
+    {t:'kana', k:'せ', r:'se',  a:['se'],       h:'さ行 (SE)'},
+    {t:'kana', k:'そ', r:'so',  a:['so'],       h:'さ行 (SO)'},
+    {t:'kana', k:'た', r:'ta',  a:['ta'],       h:'た行 (TA)'},
+    {t:'kana', k:'ち', r:'chi', a:['chi','ti'], h:'た行 (CHI)'},
+    {t:'kana', k:'つ', r:'tsu', a:['tsu'],      h:'た行 (TSU)'},
+    {t:'kana', k:'て', r:'te',  a:['te'],       h:'た行 (TE)'},
+    {t:'kana', k:'と', r:'to',  a:['to'],       h:'た行 (TO)'},
+    {t:'kana', k:'な', r:'na',  a:['na'],       h:'な行 (NA)'},
+    {t:'kana', k:'に', r:'ni',  a:['ni'],       h:'な行 (NI)'},
+    {t:'kana', k:'ぬ', r:'nu',  a:['nu'],       h:'な行 (NU)'},
+    {t:'kana', k:'ね', r:'ne',  a:['ne'],       h:'な行 (NE)'},
+    {t:'kana', k:'の', r:'no',  a:['no'],       h:'な行 (NO)'},
+    {t:'kana', k:'は', r:'ha',  a:['ha'],       h:'は行 (HA)'},
+    {t:'kana', k:'ひ', r:'hi',  a:['hi'],       h:'は行 (HI)'},
+    {t:'kana', k:'ふ', r:'fu',  a:['fu','hu'],  h:'は行 (FU)'},
+    {t:'kana', k:'へ', r:'he',  a:['he'],       h:'は行 (HE)'},
+    {t:'kana', k:'ほ', r:'ho',  a:['ho'],       h:'は行 (HO)'},
+    {t:'kana', k:'ま', r:'ma',  a:['ma'],       h:'ま行 (MA)'},
+    {t:'kana', k:'み', r:'mi',  a:['mi'],       h:'ま行 (MI)'},
+    {t:'kana', k:'む', r:'mu',  a:['mu'],       h:'ま行 (MU)'},
+    {t:'kana', k:'め', r:'me',  a:['me'],       h:'ま行 (ME)'},
+    {t:'kana', k:'も', r:'mo',  a:['mo'],       h:'ま行 (MO)'},
+    {t:'kana', k:'や', r:'ya',  a:['ya'],       h:'や行 (YA)'},
+    {t:'kana', k:'ゆ', r:'yu',  a:['yu'],       h:'や行 (YU)'},
+    {t:'kana', k:'よ', r:'yo',  a:['yo'],       h:'や行 (YO)'},
+    {t:'kana', k:'ら', r:'ra',  a:['ra'],       h:'ら行 (RA)'},
+    {t:'kana', k:'り', r:'ri',  a:['ri'],       h:'ら行 (RI)'},
+    {t:'kana', k:'る', r:'ru',  a:['ru'],       h:'ら行 (RU)'},
+    {t:'kana', k:'れ', r:'re',  a:['re'],       h:'ら行 (RE)'},
+    {t:'kana', k:'ろ', r:'ro',  a:['ro'],       h:'ら行 (RO)'},
+    {t:'kana', k:'わ', r:'wa',  a:['wa'],       h:'わ行 (WA)'},
+    {t:'kana', k:'を', r:'wo',  a:['wo','o'],   h:'わ行 (WO)'},
+    {t:'kana', k:'ん', r:'n',   a:['n'],        h:'撥音 (N)'},
 
-            // --- 3. 時間 ---
-            {t:'n', k:'今', r:'いま', a:['now','現在'], h:'現在'},
-            {t:'n', k:'今日', r:'きょう', a:['today','今天'], h:'今天'},
-            {t:'n', k:'昨日', r:'きのう', a:['yesterday','昨天'], h:'昨天'},
-            {t:'n', k:'明日', r:'あした', a:['tomorrow','明天'], h:'明天'},
-            {t:'n', k:'朝', r:'あさ', a:['morning','早上'], h:'早上'},
-            {t:'n', k:'昼', r:'ひる', a:['noon','daytime','中午'], h:'中午/白天'},
-            {t:'n', k:'晩', r:'ばん', a:['night','evening','晚上'], h:'晚上'},
-            {t:'n', k:'毎日', r:'まいにち', a:['everyday','每天'], h:'每天'},
-            {t:'n', k:'来週', r:'らいしゅう', a:['next week','下週'], h:'下週'},
-            {t:'n', k:'いつ', r:'いつ', a:['when','何時'], h:'什麼時候'},
+    // =====================
+    // 濁音・半濁音
+    // =====================
+    {t:'kana', k:'が', r:'ga',  a:['ga'],  h:'が行 (GA)'},
+    {t:'kana', k:'ぎ', r:'gi',  a:['gi'],  h:'が行 (GI)'},
+    {t:'kana', k:'ぐ', r:'gu',  a:['gu'],  h:'が行 (GU)'},
+    {t:'kana', k:'げ', r:'ge',  a:['ge'],  h:'が行 (GE)'},
+    {t:'kana', k:'ご', r:'go',  a:['go'],  h:'が行 (GO)'},
+    {t:'kana', k:'ざ', r:'za',  a:['za'],  h:'ざ行 (ZA)'},
+    {t:'kana', k:'じ', r:'ji',  a:['ji','zi'], h:'ざ行 (JI)'},
+    {t:'kana', k:'ず', r:'zu',  a:['zu'],  h:'ざ行 (ZU)'},
+    {t:'kana', k:'ぜ', r:'ze',  a:['ze'],  h:'ざ行 (ZE)'},
+    {t:'kana', k:'ぞ', r:'zo',  a:['zo'],  h:'ざ行 (ZO)'},
+    {t:'kana', k:'だ', r:'da',  a:['da'],  h:'だ行 (DA)'},
+    {t:'kana', k:'で', r:'de',  a:['de'],  h:'だ行 (DE)'},
+    {t:'kana', k:'ど', r:'do',  a:['do'],  h:'だ行 (DO)'},
+    {t:'kana', k:'ば', r:'ba',  a:['ba'],  h:'ば行 (BA)'},
+    {t:'kana', k:'び', r:'bi',  a:['bi'],  h:'ば行 (BI)'},
+    {t:'kana', k:'ぶ', r:'bu',  a:['bu'],  h:'ば行 (BU)'},
+    {t:'kana', k:'べ', r:'be',  a:['be'],  h:'ば行 (BE)'},
+    {t:'kana', k:'ぼ', r:'bo',  a:['bo'],  h:'ば行 (BO)'},
+    {t:'kana', k:'ぱ', r:'pa',  a:['pa'],  h:'ぱ行 (PA)'},
+    {t:'kana', k:'ぴ', r:'pi',  a:['pi'],  h:'ぱ行 (PI)'},
+    {t:'kana', k:'ぷ', r:'pu',  a:['pu'],  h:'ぱ行 (PU)'},
+    {t:'kana', k:'ぺ', r:'pe',  a:['pe'],  h:'ぱ行 (PE)'},
+    {t:'kana', k:'ぽ', r:'po',  a:['po'],  h:'ぱ行 (PO)'},
 
-            // --- 4. 場所 ---
-            {t:'n', k:'学校', r:'がっこう', a:['school','學校'], h:'學校'},
-            {t:'n', k:'教室', r:'きょうしつ', a:['classroom','教室'], h:'教室'},
-            {t:'n', k:'食堂', r:'しょくどう', a:['canteen','食堂'], h:'食堂'},
-            {t:'n', k:'トイレ', r:'トイレ', a:['toilet','廁所'], h:'廁所'},
-            {t:'n', k:'病院', r:'びょういん', a:['hospital','醫院'], h:'醫院'},
-            {t:'n', k:'銀行', r:'ぎんこう', a:['bank','銀行'], h:'銀行'},
-            {t:'n', k:'図書館', r:'としょかん', a:['library','圖書館'], h:'圖書館'},
-            {t:'n', k:'上', r:'うえ', a:['up','above','上'], h:'上面'},
-            {t:'n', k:'下', r:'した', a:['down','below','下'], h:'下面'},
-            {t:'n', k:'中', r:'なか', a:['inside','中'], h:'裡面'},
-            {t:'n', k:'外', r:'そと', a:['outside','外'], h:'外面'},
+    // =====================
+    // 代名詞 & 人物
+    // =====================
+    {t:'n', k:'私',     r:'わたし',     a:['I','我'],                   h:'我'},
+    {t:'n', k:'あなた', r:'あなた',     a:['you','你'],                 h:'你'},
+    {t:'n', k:'先生',   r:'せんせい',   a:['teacher','老師'],           h:'老師/醫生'},
+    {t:'n', k:'学生',   r:'がくせい',   a:['student','學生'],           h:'學生'},
+    {t:'n', k:'会社員', r:'かいしゃいん',a:['employee','公司職員','上班族'],h:'公司職員'},
+    {t:'n', k:'人',     r:'ひと',       a:['person','人'],              h:'人'},
+    {t:'n', k:'子供',   r:'こども',     a:['child','小孩'],             h:'小孩'},
+    {t:'n', k:'誰',     r:'だれ',       a:['who','誰'],                 h:'誰'},
+    {t:'n', k:'友達',   r:'ともだち',   a:['friend','朋友'],            h:'朋友'},
+    {t:'n', k:'彼',     r:'かれ',       a:['he','him','他'],            h:'他'},
+    {t:'n', k:'彼女',   r:'かのじょ',   a:['she','her','她'],           h:'她'},
 
-            // --- 5. 食物/物品 ---
-            {t:'n', k:'ご飯', r:'ごはん', a:['rice','meal','飯'], h:'飯/餐'},
-            {t:'n', k:'肉', r:'にく', a:['meat','肉'], h:'肉'},
-            {t:'n', k:'魚', r:'さかな', a:['fish','魚'], h:'魚'},
-            {t:'n', k:'水', r:'みず', a:['water','水'], h:'水'},
-            {t:'n', k:'本', r:'ほん', a:['book','書'], h:'書'},
-            {t:'n', k:'車', r:'くるま', a:['car','車'], h:'車'},
-            {t:'n', k:'手紙', r:'てがみ', a:['letter','信'], h:'信'},
+    // =====================
+    // 家族
+    // =====================
+    {t:'n', k:'父',     r:'ちち',       a:['father','dad','爸爸','家父'],   h:'(我的)父親'},
+    {t:'n', k:'母',     r:'はは',       a:['mother','mom','媽媽','家母'],   h:'(我的)母親'},
+    {t:'n', k:'兄',     r:'あに',       a:['older brother','哥哥'],         h:'(我的)哥哥'},
+    {t:'n', k:'姉',     r:'あね',       a:['older sister','姊姊'],          h:'(我的)姊姊'},
+    {t:'n', k:'弟',     r:'おとうと',   a:['younger brother','弟弟'],       h:'(我的)弟弟'},
+    {t:'n', k:'妹',     r:'いもうと',   a:['younger sister','妹妹'],        h:'(我的)妹妹'},
+    {t:'n', k:'お父さん',r:'おとうさん', a:['father','爸爸'],               h:'(別人的)父親'},
+    {t:'n', k:'お母さん',r:'おかあさん', a:['mother','媽媽'],               h:'(別人的)母親'},
+    {t:'n', k:'家族',   r:'かぞく',     a:['family','家人','家族'],         h:'家人'},
 
-            // --- 6. 動詞 ---
-            {t:'v', k:'起きます', r:'おきます', a:['wake up','起床'], h:'起床'},
-            {t:'v', k:'寝ます', r:'ねます', a:['sleep','睡覺'], h:'睡覺'},
-            {t:'v', k:'働きます', r:'はたらきます', a:['work','工作'], h:'工作'},
-            {t:'v', k:'行きます', r:'いきます', a:['go','去'], h:'去'},
-            {t:'v', k:'来ます', r:'きます', a:['come','來'], h:'來'},
-            {t:'v', k:'帰ります', r:'かえります', a:['return','回家'], h:'回家'},
-            {t:'v', k:'食べます', r:'たべます', a:['eat','吃'], h:'吃'},
-            {t:'v', k:'飲みます', r:'のみます', a:['drink','喝'], h:'喝'},
-            {t:'v', k:'買います', r:'かいます', a:['buy','買'], h:'買'},
-            {t:'v', k:'見ます', r:'みます', a:['watch','看'], h:'看'},
-            {t:'v', k:'聞きます', r:'ききます', a:['listen','hear','聽','問'], h:'聽/問'},
-            {t:'v', k:'読みます', r:'よみます', a:['read','讀'], h:'閱讀'},
-            {t:'v', k:'書きます', r:'かきます', a:['write','寫'], h:'寫'},
-            {t:'v', k:'分かります', r:'わかります', a:['understand','懂'], h:'懂了'},
-            {t:'v', k:'あります', r:'あります', a:['have','exists','有','在'], h:'有/在 (無生命)'},
-            {t:'v', k:'います', r:'います', a:['have','exists','有','在'], h:'有/在 (有生命)'},
+    // =====================
+    // 時間
+    // =====================
+    {t:'n', k:'今',   r:'いま',     a:['now','現在'],       h:'現在'},
+    {t:'n', k:'今日', r:'きょう',   a:['today','今天'],     h:'今天'},
+    {t:'n', k:'昨日', r:'きのう',   a:['yesterday','昨天'], h:'昨天'},
+    {t:'n', k:'明日', r:'あした',   a:['tomorrow','明天'],  h:'明天'},
+    {t:'n', k:'朝',   r:'あさ',     a:['morning','早上'],   h:'早上'},
+    {t:'n', k:'昼',   r:'ひる',     a:['noon','daytime','中午'],h:'中午/白天'},
+    {t:'n', k:'晩',   r:'ばん',     a:['night','evening','晚上'],h:'晚上'},
+    {t:'n', k:'毎日', r:'まいにち', a:['everyday','每天'],  h:'每天'},
+    {t:'n', k:'来週', r:'らいしゅう',a:['next week','下週'], h:'下週'},
+    {t:'n', k:'いつ', r:'いつ',     a:['when','何時'],      h:'什麼時候'},
+    {t:'n', k:'今週', r:'こんしゅう',a:['this week','本週'], h:'本週'},
+    {t:'n', k:'先週', r:'せんしゅう',a:['last week','上週'], h:'上週'},
+    {t:'n', k:'来月', r:'らいげつ', a:['next month','下個月'],h:'下個月'},
+    {t:'n', k:'今年', r:'ことし',   a:['this year','今年'],  h:'今年'},
+    {t:'n', k:'去年', r:'きょねん', a:['last year','去年'],  h:'去年'},
 
-            // --- 7. 形容詞/副詞 ---
-            {t:'adj', k:'大きい', r:'おおきい', a:['big','大'], h:'大的'},
-            {t:'adj', k:'小さい', r:'ちいさい', a:['small','小'], h:'小的'},
-            {t:'adj', k:'新しい', r:'あたらしい', a:['new','新'], h:'新的'},
-            {t:'adj', k:'古い', r:'ふるい', a:['old','舊'], h:'舊的'},
-            {t:'adj', k:'いい', r:'いい', a:['good','好'], h:'好的'},
-            {t:'adj', k:'暑い', r:'あつい', a:['hot','熱'], h:'熱的'},
-            {t:'adj', k:'寒い', r:'さむい', a:['cold','冷'], h:'冷的'},
-            {t:'adj', k:'おいしい', r:'おいしい', a:['delicious','好吃'], h:'好吃的'},
-            {t:'adj', k:'楽しい', r:'たのしい', a:['fun','快樂'], h:'愉快的'},
-            {t:'adj', k:'綺麗', r:'きれい', a:['beautiful','clean','漂亮','乾淨'], h:'漂亮的'},
-            {t:'adj', k:'静か', r:'しずか', a:['quiet','安靜'], h:'安靜的'},
-            {t:'adj', k:'好き', r:'すき', a:['like','喜歡'], h:'喜歡的'},
-            {t:'adv', k:'とても', r:'とても', a:['very','非常'], h:'非常'},
-            {t:'adv', k:'あまり', r:'あまり', a:['not very','不太'], h:'不太 (接否定)'},
+    // =====================
+    // 場所
+    // =====================
+    {t:'n', k:'学校',   r:'がっこう',   a:['school','學校'],       h:'學校'},
+    {t:'n', k:'教室',   r:'きょうしつ', a:['classroom','教室'],    h:'教室'},
+    {t:'n', k:'食堂',   r:'しょくどう', a:['canteen','食堂'],      h:'食堂'},
+    {t:'n', k:'トイレ', r:'トイレ',     a:['toilet','廁所'],       h:'廁所'},
+    {t:'n', k:'病院',   r:'びょういん', a:['hospital','醫院'],     h:'醫院'},
+    {t:'n', k:'銀行',   r:'ぎんこう',   a:['bank','銀行'],         h:'銀行'},
+    {t:'n', k:'図書館', r:'としょかん', a:['library','圖書館'],    h:'圖書館'},
+    {t:'n', k:'駅',     r:'えき',       a:['station','車站'],      h:'車站'},
+    {t:'n', k:'空港',   r:'くうこう',   a:['airport','機場'],      h:'機場'},
+    {t:'n', k:'郵便局', r:'ゆうびんきょく',a:['post office','郵局'],h:'郵局'},
+    {t:'n', k:'コンビニ',r:'コンビニ',  a:['convenience store','便利商店'],h:'便利商店'},
+    {t:'n', k:'スーパー',r:'スーパー',  a:['supermarket','超市'],  h:'超市'},
+    {t:'n', k:'公園',   r:'こうえん',   a:['park','公園'],         h:'公園'},
+    {t:'n', k:'映画館', r:'えいがかん', a:['cinema','電影院'],     h:'電影院'},
+    {t:'n', k:'レストラン',r:'レストラン',a:['restaurant','餐廳'], h:'餐廳'},
+    {t:'n', k:'ホテル', r:'ホテル',     a:['hotel','飯店'],        h:'飯店'},
+    {t:'n', k:'上',     r:'うえ',       a:['up','above','上'],     h:'上面'},
+    {t:'n', k:'下',     r:'した',       a:['down','below','下'],   h:'下面'},
+    {t:'n', k:'中',     r:'なか',       a:['inside','中'],         h:'裡面'},
+    {t:'n', k:'外',     r:'そと',       a:['outside','外'],        h:'外面'},
+    {t:'n', k:'右',     r:'みぎ',       a:['right','右'],          h:'右邊'},
+    {t:'n', k:'左',     r:'ひだり',     a:['left','左'],           h:'左邊'},
+    {t:'n', k:'前',     r:'まえ',       a:['front','before','前'], h:'前面'},
+    {t:'n', k:'後ろ',   r:'うしろ',     a:['back','behind','後'],  h:'後面'},
 
-            // --- 8. 文法句型 ---
-            {mode:'g', pre:'私', post:'学生です。', a:['は','wa'], desc:'我是學生 (主題標記)', r:'わたし...がくせい'},
-            {mode:'g', pre:'これ', post:'本ですか。', a:['は','wa'], desc:'這是書嗎？', r:'これ...ほん'},
-            {mode:'g', pre:'トイレ', post:'どこですか。', a:['は','wa'], desc:'廁所在哪裡？', r:'トイレ...どこ'},
-            {mode:'g', pre:'3時', post:'寝ます。', a:['に','ni'], desc:'三點睡覺 (時間點)', r:'さんじ...ねます'},
-            {mode:'g', pre:'学校', post:'行きます。', a:['へ','に','e','ni'], desc:'去學校 (移動方向)', r:'がっこう...いきます'},
-            {mode:'g', pre:'バス', post:'来ました。', a:['で','de'], desc:'搭公車來的 (交通手段)', r:'バス...きました'},
-            {mode:'g', pre:'日本語', post:'話します。', a:['で','de'], desc:'用日文說話 (語言手段)', r:'にほんご...はなします'},
-            {mode:'g', pre:'ご飯', post:'食べます。', a:['を','o','wo'], desc:'吃飯 (受詞)', r:'ごはん...たべます'},
-            {mode:'g', pre:'図書館', post:'勉強します。', a:['で','de'], desc:'在圖書館唸書 (動作場所)', r:'としょかん...べんきょうします'},
-            {mode:'g', pre:'田中さん', post:'います。', a:['が','ga'], desc:'田中先生在 (存在主詞)', r:'たなかさん...います'},
-            {mode:'g', pre:'机の上', post:'猫がいます。', a:['に','ni'], desc:'桌子上...有貓 (存在場所)', r:'つくえのうえ...ねこ'},
-            {mode:'g', pre:'東京', post:'大阪まで。', a:['から','kara'], desc:'"從"東京到大阪', r:'とうきょう...おおさか'},
-            {mode:'g', pre:'明日一緒に', post:'ませんか。', a:['いき','iki'], desc:'明天要不要一起"去"呢？ (行きます的邀請形)', r:'あしたいっしょに...'},
-            {mode:'g', pre:'音楽を', post:'ながら、勉強します。', a:['きき','kiki'], desc:'一邊"聽"音樂，一邊唸書', r:'おんがく...べんきょう'}
-        ];
+    // =====================
+    // 食物 & 飲料
+    // =====================
+    {t:'n', k:'ご飯', r:'ごはん',  a:['rice','meal','飯'],   h:'飯/餐'},
+    {t:'n', k:'肉',   r:'にく',    a:['meat','肉'],          h:'肉'},
+    {t:'n', k:'魚',   r:'さかな',  a:['fish','魚'],          h:'魚'},
+    {t:'n', k:'水',   r:'みず',    a:['water','水'],         h:'水'},
+    {t:'n', k:'お茶', r:'おちゃ',  a:['tea','茶'],           h:'茶'},
+    {t:'n', k:'コーヒー',r:'コーヒー',a:['coffee','咖啡'],   h:'咖啡'},
+    {t:'n', k:'パン', r:'パン',    a:['bread','麵包'],       h:'麵包'},
+    {t:'n', k:'野菜', r:'やさい',  a:['vegetable','蔬菜'],   h:'蔬菜'},
+    {t:'n', k:'果物', r:'くだもの',a:['fruit','水果'],       h:'水果'},
+    {t:'n', k:'卵',   r:'たまご',  a:['egg','蛋'],           h:'蛋'},
+    {t:'n', k:'牛乳', r:'ぎゅうにゅう',a:['milk','牛奶'],    h:'牛奶'},
+    {t:'n', k:'お酒', r:'おさけ',  a:['alcohol','sake','酒'],h:'酒'},
+    {t:'n', k:'ラーメン',r:'ラーメン',a:['ramen','拉麵'],    h:'拉麵'},
+    {t:'n', k:'寿司', r:'すし',    a:['sushi','壽司'],       h:'壽司'},
 
-        // ------------------------------------------
-        // 系統邏輯
-        // ------------------------------------------
-        const codeContainer = document.getElementById('code-container');
-        const progressIndicator = document.getElementById('progress-indicator');
-        const bossScreen = document.getElementById('boss-screen');
-        let currentIdx = 0;
-        let correctCount = 0;
-        let isBossMode = false;
-        
-        // 狀態控制：'input' = 輸入中, 'result' = 顯示結果(等待下一題)
-        let gameState = 'input'; 
+    // =====================
+    // 顏色
+    // =====================
+    {t:'n', k:'赤',   r:'あか',    a:['red','紅色'],         h:'紅色'},
+    {t:'n', k:'青',   r:'あお',    a:['blue','藍色'],        h:'藍色'},
+    {t:'n', k:'白',   r:'しろ',    a:['white','白色'],       h:'白色'},
+    {t:'n', k:'黒',   r:'くろ',    a:['black','黑色'],       h:'黑色'},
+    {t:'n', k:'黄色', r:'きいろ',  a:['yellow','黃色'],      h:'黃色'},
+    {t:'n', k:'緑',   r:'みどり',  a:['green','綠色'],       h:'綠色'},
+    {t:'n', k:'茶色', r:'ちゃいろ',a:['brown','棕色'],       h:'棕色'},
+    {t:'n', k:'紫',   r:'むらさき',a:['purple','紫色'],      h:'紫色'},
 
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
+    // =====================
+    // 數字
+    // =====================
+    {t:'n', k:'一', r:'いち', a:['one','1','一'], h:'1'},
+    {t:'n', k:'二', r:'に',   a:['two','2','二'], h:'2'},
+    {t:'n', k:'三', r:'さん', a:['three','3','三'],h:'3'},
+    {t:'n', k:'四', r:'し',   a:['four','4','四','よん'], h:'4'},
+    {t:'n', k:'五', r:'ご',   a:['five','5','五'], h:'5'},
+    {t:'n', k:'六', r:'ろく', a:['six','6','六'],  h:'6'},
+    {t:'n', k:'七', r:'しち', a:['seven','7','七','なな'],h:'7'},
+    {t:'n', k:'八', r:'はち', a:['eight','8','八'], h:'8'},
+    {t:'n', k:'九', r:'く',   a:['nine','9','九','きゅう'],h:'9'},
+    {t:'n', k:'十', r:'じゅう',a:['ten','10','十'], h:'10'},
+    {t:'n', k:'百', r:'ひゃく',a:['hundred','100','百'],h:'100'},
+    {t:'n', k:'千', r:'せん', a:['thousand','1000','千'],h:'1000'},
+
+    // =====================
+    // 身體
+    // =====================
+    {t:'n', k:'頭', r:'あたま', a:['head','頭'],     h:'頭'},
+    {t:'n', k:'目', r:'め',     a:['eye','眼睛'],    h:'眼睛'},
+    {t:'n', k:'耳', r:'みみ',   a:['ear','耳朵'],    h:'耳朵'},
+    {t:'n', k:'鼻', r:'はな',   a:['nose','鼻子'],   h:'鼻子'},
+    {t:'n', k:'口', r:'くち',   a:['mouth','嘴巴'],  h:'嘴巴'},
+    {t:'n', k:'手', r:'て',     a:['hand','手'],      h:'手'},
+    {t:'n', k:'足', r:'あし',   a:['leg','foot','腳','腿'],h:'腳/腿'},
+    {t:'n', k:'体', r:'からだ', a:['body','身體'],   h:'身體'},
+    {t:'n', k:'髪', r:'かみ',   a:['hair','頭髮'],   h:'頭髮'},
+
+    // =====================
+    // 天氣
+    // =====================
+    {t:'n', k:'天気', r:'てんき',  a:['weather','天氣'],  h:'天氣'},
+    {t:'n', k:'晴れ', r:'はれ',    a:['sunny','晴天'],    h:'晴天'},
+    {t:'n', k:'曇り', r:'くもり',  a:['cloudy','陰天'],   h:'陰天'},
+    {t:'n', k:'雨',   r:'あめ',    a:['rain','雨'],       h:'雨'},
+    {t:'n', k:'雪',   r:'ゆき',    a:['snow','雪'],       h:'雪'},
+    {t:'n', k:'風',   r:'かぜ',    a:['wind','風'],       h:'風'},
+    {t:'n', k:'台風', r:'たいふう',a:['typhoon','颱風'],  h:'颱風'},
+
+    // =====================
+    // 交通
+    // =====================
+    {t:'n', k:'電車',   r:'でんしゃ',   a:['train','電車'],     h:'電車'},
+    {t:'n', k:'バス',   r:'バス',       a:['bus','公車'],       h:'公車'},
+    {t:'n', k:'タクシー',r:'タクシー',  a:['taxi','計程車'],    h:'計程車'},
+    {t:'n', k:'自転車', r:'じてんしゃ', a:['bicycle','腳踏車'], h:'腳踏車'},
+    {t:'n', k:'飛行機', r:'ひこうき',   a:['airplane','飛機'],  h:'飛機'},
+    {t:'n', k:'船',     r:'ふね',       a:['ship','boat','船'], h:'船'},
+    {t:'n', k:'地下鉄', r:'ちかてつ',   a:['subway','地鐵'],    h:'地鐵'},
+
+    // =====================
+    // 物品
+    // =====================
+    {t:'n', k:'本',   r:'ほん',   a:['book','書'],         h:'書'},
+    {t:'n', k:'車',   r:'くるま', a:['car','車'],          h:'車'},
+    {t:'n', k:'手紙', r:'てがみ', a:['letter','信'],       h:'信'},
+    {t:'n', k:'鉛筆', r:'えんぴつ',a:['pencil','鉛筆'],   h:'鉛筆'},
+    {t:'n', k:'ノート',r:'ノート', a:['notebook','筆記本'],h:'筆記本'},
+    {t:'n', k:'カバン',r:'カバン', a:['bag','包包'],        h:'包包'},
+    {t:'n', k:'時計', r:'とけい', a:['clock','watch','時鐘','手錶'],h:'時鐘/手錶'},
+    {t:'n', k:'電話', r:'でんわ', a:['telephone','phone','電話'],h:'電話'},
+    {t:'n', k:'財布', r:'さいふ', a:['wallet','錢包'],     h:'錢包'},
+    {t:'n', k:'傘',   r:'かさ',   a:['umbrella','雨傘'],   h:'雨傘'},
+    {t:'n', k:'眼鏡', r:'めがね', a:['glasses','眼鏡'],    h:'眼鏡'},
+    {t:'n', k:'服',   r:'ふく',   a:['clothes','衣服'],    h:'衣服'},
+    {t:'n', k:'靴',   r:'くつ',   a:['shoes','鞋子'],      h:'鞋子'},
+    {t:'n', k:'帽子', r:'ぼうし', a:['hat','帽子'],        h:'帽子'},
+    {t:'n', k:'鍵',   r:'かぎ',   a:['key','鑰匙'],        h:'鑰匙'},
+
+    // =====================
+    // 動詞
+    // =====================
+    {t:'v', k:'起きます',  r:'おきます',    a:['wake up','起床'],     h:'起床'},
+    {t:'v', k:'寝ます',    r:'ねます',      a:['sleep','睡覺'],       h:'睡覺'},
+    {t:'v', k:'働きます',  r:'はたらきます',a:['work','工作'],        h:'工作'},
+    {t:'v', k:'行きます',  r:'いきます',    a:['go','去'],            h:'去'},
+    {t:'v', k:'来ます',    r:'きます',      a:['come','來'],          h:'來'},
+    {t:'v', k:'帰ります',  r:'かえります',  a:['return','回家'],      h:'回家'},
+    {t:'v', k:'食べます',  r:'たべます',    a:['eat','吃'],           h:'吃'},
+    {t:'v', k:'飲みます',  r:'のみます',    a:['drink','喝'],         h:'喝'},
+    {t:'v', k:'買います',  r:'かいます',    a:['buy','買'],           h:'買'},
+    {t:'v', k:'見ます',    r:'みます',      a:['watch','看'],         h:'看'},
+    {t:'v', k:'聞きます',  r:'ききます',    a:['listen','hear','聽','問'],h:'聽/問'},
+    {t:'v', k:'読みます',  r:'よみます',    a:['read','讀'],          h:'閱讀'},
+    {t:'v', k:'書きます',  r:'かきます',    a:['write','寫'],         h:'寫'},
+    {t:'v', k:'分かります',r:'わかります',  a:['understand','懂'],    h:'懂了'},
+    {t:'v', k:'あります',  r:'あります',    a:['have','exists','有','在'],h:'有/在 (無生命)'},
+    {t:'v', k:'います',    r:'います',      a:['have','exists','有','在'],h:'有/在 (有生命)'},
+    {t:'v', k:'話します',  r:'はなします',  a:['speak','talk','說話'],h:'說話'},
+    {t:'v', k:'使います',  r:'つかいます',  a:['use','使用'],         h:'使用'},
+    {t:'v', k:'教えます',  r:'おしえます',  a:['teach','tell','教'],  h:'教/告訴'},
+    {t:'v', k:'始めます',  r:'はじめます',  a:['start','begin','開始'],h:'開始'},
+    {t:'v', k:'終わります',r:'おわります',  a:['finish','end','結束'], h:'結束'},
+    {t:'v', k:'乗ります',  r:'のります',    a:['ride','搭乘'],        h:'搭乘'},
+    {t:'v', k:'降ります',  r:'おります',    a:['get off','下車'],     h:'下車'},
+    {t:'v', k:'待ちます',  r:'まちます',    a:['wait','等待'],        h:'等待'},
+    {t:'v', k:'会います',  r:'あいます',    a:['meet','見面'],        h:'見面'},
+    {t:'v', k:'知ります',  r:'しります',    a:['know','知道'],        h:'知道'},
+    {t:'v', k:'持ちます',  r:'もちます',    a:['hold','carry','拿','持'],h:'拿/持'},
+    {t:'v', k:'貸します',  r:'かします',    a:['lend','借出'],        h:'借出(借給)'},
+    {t:'v', k:'借ります',  r:'かります',    a:['borrow','借入'],      h:'借入(向人借)'},
+    {t:'v', k:'泳ぎます',  r:'およぎます',  a:['swim','游泳'],        h:'游泳'},
+    {t:'v', k:'走ります',  r:'はしります',  a:['run','跑'],           h:'跑'},
+    {t:'v', k:'歌います',  r:'うたいます',  a:['sing','唱歌'],        h:'唱歌'},
+    {t:'v', k:'作ります',  r:'つくります',  a:['make','create','製作','做'],h:'做/製作'},
+    {t:'v', k:'洗います',  r:'あらいます',  a:['wash','洗'],          h:'洗'},
+    {t:'v', k:'開けます',  r:'あけます',    a:['open','打開'],        h:'打開'},
+    {t:'v', k:'閉めます',  r:'しめます',    a:['close','關上'],       h:'關上'},
+    {t:'v', k:'入ります',  r:'はいります',  a:['enter','進入'],       h:'進入'},
+    {t:'v', k:'出ます',    r:'でます',      a:['exit','leave','出去'],h:'出去/離開'},
+    {t:'v', k:'起こします',r:'おこします',  a:['wake up (someone)','叫醒'],h:'叫醒(他人)'},
+
+    // =====================
+    // 形容詞 & 副詞
+    // =====================
+    {t:'adj', k:'大きい',   r:'おおきい',   a:['big','大'],           h:'大的'},
+    {t:'adj', k:'小さい',   r:'ちいさい',   a:['small','小'],         h:'小的'},
+    {t:'adj', k:'新しい',   r:'あたらしい', a:['new','新'],           h:'新的'},
+    {t:'adj', k:'古い',     r:'ふるい',     a:['old','舊'],           h:'舊的'},
+    {t:'adj', k:'いい',     r:'いい',       a:['good','好'],          h:'好的'},
+    {t:'adj', k:'暑い',     r:'あつい',     a:['hot','熱'],           h:'熱的'},
+    {t:'adj', k:'寒い',     r:'さむい',     a:['cold','冷'],          h:'冷的'},
+    {t:'adj', k:'おいしい', r:'おいしい',   a:['delicious','好吃'],   h:'好吃的'},
+    {t:'adj', k:'楽しい',   r:'たのしい',   a:['fun','快樂'],         h:'愉快的'},
+    {t:'adj', k:'綺麗',     r:'きれい',     a:['beautiful','clean','漂亮','乾淨'],h:'漂亮的'},
+    {t:'adj', k:'静か',     r:'しずか',     a:['quiet','安靜'],       h:'安靜的'},
+    {t:'adj', k:'好き',     r:'すき',       a:['like','喜歡'],        h:'喜歡的'},
+    {t:'adj', k:'難しい',   r:'むずかしい', a:['difficult','難'],     h:'難的'},
+    {t:'adj', k:'やさしい', r:'やさしい',   a:['easy','kind','簡單','親切'],h:'簡單/親切'},
+    {t:'adj', k:'面白い',   r:'おもしろい', a:['interesting','funny','有趣'],h:'有趣的'},
+    {t:'adj', k:'つまらない',r:'つまらない', a:['boring','無聊'],      h:'無聊的'},
+    {t:'adj', k:'高い',     r:'たかい',     a:['expensive','tall','高','貴'],h:'高的/貴的'},
+    {t:'adj', k:'安い',     r:'やすい',     a:['cheap','affordable','便宜'],h:'便宜的'},
+    {t:'adj', k:'近い',     r:'ちかい',     a:['near','近'],          h:'近的'},
+    {t:'adj', k:'遠い',     r:'とおい',     a:['far','遠'],           h:'遠的'},
+    {t:'adj', k:'速い',     r:'はやい',     a:['fast','quick','快'],  h:'快的'},
+    {t:'adj', k:'遅い',     r:'おそい',     a:['slow','late','慢','晚'],h:'慢的/晚的'},
+    {t:'adj', k:'重い',     r:'おもい',     a:['heavy','重'],         h:'重的'},
+    {t:'adj', k:'軽い',     r:'かるい',     a:['light','輕'],         h:'輕的'},
+    {t:'adj', k:'長い',     r:'ながい',     a:['long','長'],          h:'長的'},
+    {t:'adj', k:'短い',     r:'みじかい',   a:['short','短'],         h:'短的'},
+    {t:'adj', k:'広い',     r:'ひろい',     a:['wide','spacious','寬','寬廣'],h:'寬廣的'},
+    {t:'adj', k:'狭い',     r:'せまい',     a:['narrow','small','狹窄'],h:'狹窄的'},
+    {t:'adj', k:'痛い',     r:'いたい',     a:['painful','hurt','痛'],h:'痛的'},
+    {t:'adj', k:'眠い',     r:'ねむい',     a:['sleepy','想睡'],      h:'想睡的'},
+    {t:'adj', k:'忙しい',   r:'いそがしい', a:['busy','忙碌'],        h:'忙碌的'},
+    {t:'adv', k:'とても',   r:'とても',     a:['very','非常'],        h:'非常'},
+    {t:'adv', k:'あまり',   r:'あまり',     a:['not very','不太'],    h:'不太 (接否定)'},
+    {t:'adv', k:'もう',     r:'もう',       a:['already','yet','已經'],h:'已經/再'},
+    {t:'adv', k:'まだ',     r:'まだ',       a:['still','yet','還'],   h:'還/尚未'},
+    {t:'adv', k:'少し',     r:'すこし',     a:['a little','一點'],    h:'一點點'},
+    {t:'adv', k:'たくさん', r:'たくさん',   a:['a lot','many','很多'],h:'很多'},
+
+    // =====================
+    // 文法句型
+    // =====================
+    {mode:'g', pre:'私', post:'学生です。', a:['は','wa'], desc:'我是學生 (主題標記)', r:'わたし...がくせい'},
+    {mode:'g', pre:'これ', post:'本ですか。', a:['は','wa'], desc:'這是書嗎？', r:'これ...ほん'},
+    {mode:'g', pre:'トイレ', post:'どこですか。', a:['は','wa'], desc:'廁所在哪裡？', r:'トイレ...どこ'},
+    {mode:'g', pre:'3時', post:'寝ます。', a:['に','ni'], desc:'三點睡覺 (時間點)', r:'さんじ...ねます'},
+    {mode:'g', pre:'学校', post:'行きます。', a:['へ','に','e','ni'], desc:'去學校 (移動方向)', r:'がっこう...いきます'},
+    {mode:'g', pre:'バス', post:'来ました。', a:['で','de'], desc:'搭公車來的 (交通手段)', r:'バス...きました'},
+    {mode:'g', pre:'日本語', post:'話します。', a:['で','de'], desc:'用日文說話 (語言手段)', r:'にほんご...はなします'},
+    {mode:'g', pre:'ご飯', post:'食べます。', a:['を','o','wo'], desc:'吃飯 (受詞)', r:'ごはん...たべます'},
+    {mode:'g', pre:'図書館', post:'勉強します。', a:['で','de'], desc:'在圖書館唸書 (動作場所)', r:'としょかん...べんきょうします'},
+    {mode:'g', pre:'田中さん', post:'います。', a:['が','ga'], desc:'田中先生在 (存在主詞)', r:'たなかさん...います'},
+    {mode:'g', pre:'机の上', post:'猫がいます。', a:['に','ni'], desc:'桌子上有貓 (存在場所)', r:'つくえのうえ...ねこ'},
+    {mode:'g', pre:'東京', post:'大阪まで。', a:['から','kara'], desc:'"從"東京到大阪', r:'とうきょう...おおさか'},
+    {mode:'g', pre:'明日一緒に', post:'ませんか。', a:['いき','iki'], desc:'明天要不要一起"去"？ (邀請形)', r:'あしたいっしょに...'},
+    {mode:'g', pre:'音楽を', post:'ながら、勉強します。', a:['きき','kiki'], desc:'一邊"聽"音樂，一邊唸書', r:'おんがく...べんきょう'},
+    {mode:'g', pre:'友達', post:'電話します。', a:['に','ni'], desc:'打電話"給"朋友 (對象)', r:'ともだち...でんわ'},
+    {mode:'g', pre:'駅', post:'コンビニがあります。', a:['の前に','のまえに'], desc:'車站"前面"有便利商店', r:'えき...コンビニ'},
+];
+
+// ==========================================
+// TTS — 發音功能
+// ==========================================
+let jaVoice = null;
+let autoSpeak = false;
+
+function loadVoices() {
+    const voices = window.speechSynthesis.getVoices();
+    jaVoice = voices.find(v => v.lang === 'ja-JP') ||
+              voices.find(v => v.lang.startsWith('ja')) ||
+              null;
+}
+
+if ('speechSynthesis' in window) {
+    window.speechSynthesis.addEventListener('voiceschanged', loadVoices);
+    loadVoices();
+}
+
+function pronounce(text) {
+    if (!('speechSynthesis' in window) || !text) return;
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.lang = 'ja-JP';
+    utt.rate = 0.82;
+    utt.pitch = 1.0;
+    if (jaVoice) utt.voice = jaVoice;
+    window.speechSynthesis.speak(utt);
+}
+
+// ==========================================
+// 系統邏輯
+// ==========================================
+const codeContainer = document.getElementById('code-container');
+const progressIndicator = document.getElementById('progress-indicator');
+const bossScreen = document.getElementById('boss-screen');
+const scoreIndicator = document.getElementById('score-indicator');
+const dbCountEl = document.getElementById('db-count');
+const autoSpeakBtn = document.getElementById('auto-speak-btn');
+
+dbCountEl.textContent = `${db.length} words`;
+
+let currentIdx = 0;
+let correctCount = 0;
+let isBossMode = false;
+let gameState = 'input';
+let currentItem = null;
+
+autoSpeakBtn.addEventListener('click', () => {
+    autoSpeak = !autoSpeak;
+    autoSpeakBtn.classList.toggle('on', autoSpeak);
+    autoSpeakBtn.textContent = autoSpeak ? '🔊 Auto ✓' : '🔊 Auto';
+});
+
+// Click-to-pronounce via event delegation
+codeContainer.addEventListener('click', (e) => {
+    const btn = e.target.closest('.speak-btn');
+    if (!btn) return;
+    const text = btn.dataset.text;
+    if (text) {
+        pronounce(text);
+        btn.classList.add('speaking');
+        setTimeout(() => btn.classList.remove('speaking'), 500);
+    }
+});
+
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+let queue = shuffle([...db]);
+
+function renderQuestion() {
+    gameState = 'input';
+    if (queue.length === 0) queue = shuffle([...db]);
+
+    const item = queue.pop();
+    currentItem = item;
+    currentIdx++;
+    const ln = 10 + Math.floor(Math.random() * 50);
+    let html = '';
+
+    if (item.mode === 'g') {
+        const fullSentence = item.pre + item.a[0] + item.post;
+        html = `
+<div class="line"><span class="ln">${ln}</span><span class="code"><span class="doc">/**</span></span></div>
+<div class="line"><span class="ln">${ln+1}</span><span class="code"><span class="doc"> * Grammar: ${item.desc} <span class="speak-btn" data-text="${fullSentence}" title="點擊聽發音">🔊</span></span></span></div>
+<div class="line"><span class="ln">${ln+2}</span><span class="code"><span class="doc"> * Reading: ${item.r}</span></span></div>
+<div class="line"><span class="ln">${ln+3}</span><span class="code"><span class="doc"> */</span></span></div>
+<div class="line"><span class="ln">${ln+4}</span><span class="code"><span class="k">const</span> <span class="v">sentence</span> = <span class="s">"${item.pre} <input id="ans-input" autocomplete="off" style="width:55px; text-align:center;"> ${item.post}"</span>;</span></div>
+<div class="line"><span class="ln">${ln+5}</span><span class="code"><span class="v">console</span>.<span class="f">log</span>(<span class="v">sentence</span>);</span></div>
+<div class="line"><span class="ln">${ln+6}</span><span class="code" id="feedback"></span></div>`;
+
+    } else if (item.t === 'kana') {
+        html = `
+<div class="line"><span class="ln">${ln}</span><span class="code"><span class="doc">/**</span></span></div>
+<div class="line"><span class="ln">${ln+1}</span><span class="code"><span class="doc"> * 50音: ${item.h} <span class="speak-btn" data-text="${item.k}" title="點擊聽發音">🔊</span></span></span></div>
+<div class="line"><span class="ln">${ln+2}</span><span class="code"><span class="doc"> */</span></span></div>
+<div class="line"><span class="ln">${ln+3}</span><span class="code"><span class="k">const</span> <span class="v">kana</span>: <span class="t">Hiragana</span> = { char: <span class="s kana-char">"${item.k}"</span>, romaji: <span class="s">"<input id="ans-input" autocomplete="off" placeholder="romaji..." style="width:75px;">"</span> };</span></div>
+<div class="line"><span class="ln">${ln+4}</span><span class="code" id="feedback"></span></div>`;
+
+    } else {
+        const typeStr = {v:'Verb', adj:'Adjective', adv:'Adverb', n:'Noun'}[item.t] || 'Noun';
+        html = `
+<div class="line"><span class="ln">${ln}</span><span class="code"><span class="doc">/**</span></span></div>
+<div class="line"><span class="ln">${ln+1}</span><span class="code"><span class="doc"> * Reading: ${item.r} <span class="speak-btn" data-text="${item.k}" title="點擊聽發音">🔊</span></span></span></div>
+<div class="line"><span class="ln">${ln+2}</span><span class="code"><span class="doc"> * Hint:    ${item.h}</span></span></div>
+<div class="line"><span class="ln">${ln+3}</span><span class="code"><span class="doc"> */</span></span></div>
+<div class="line"><span class="ln">${ln+4}</span><span class="code"><span class="k">export</span> <span class="k">const</span> <span class="v">${item.k}</span>: <span class="t">${typeStr}</span> = <span class="s">"<input id="ans-input" autocomplete="off" placeholder="...">"</span>;</span></div>
+<div class="line"><span class="ln">${ln+5}</span><span class="code" id="feedback"></span></div>`;
+    }
+
+    codeContainer.innerHTML = html;
+
+    const input = document.getElementById('ans-input');
+    input.focus();
+    input.dataset.answers = JSON.stringify(item.a);
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            if (gameState === 'input') checkAnswer(input);
+            else renderQuestion();
         }
+    });
 
-        let queue = shuffle([...db]);
+    progressIndicator.innerText = `Ln ${ln+4}, Col 12`;
 
-        function renderQuestion() {
-            gameState = 'input'; // 重置為輸入模式
+    if (autoSpeak) {
+        setTimeout(() => pronounce(item.k), 150);
+    }
+}
 
-            if (queue.length === 0) {
-                queue = shuffle([...db]);
-            }
-            
-            const item = queue.pop();
-            currentIdx++;
-            const lineNum = 10 + Math.floor(Math.random() * 50);
+function checkAnswer(input) {
+    const userVal = input.value.trim().toLowerCase();
+    const answers = JSON.parse(input.dataset.answers);
+    const feedback = document.getElementById('feedback');
+    const correct = answers.some(a => a.toLowerCase() === userVal);
 
-            let html = '';
+    gameState = 'result';
 
-            if (item.mode === 'g') {
-                html = `
-<div class="line"><span class="ln">${lineNum}</span><span class="code"><span class="doc">/**</span></span></div>
-<div class="line"><span class="ln">${lineNum+1}</span><span class="code"><span class="doc"> * Grammar: ${item.desc}</span></span></div>
-<div class="line"><span class="ln">${lineNum+2}</span><span class="code"><span class="doc"> * Reading: ${item.r}</span></span></div>
-<div class="line"><span class="ln">${lineNum+3}</span><span class="code"><span class="doc"> */</span></span></div>
-<div class="line"><span class="ln">${lineNum+4}</span><span class="code"><span class="k">const</span> <span class="v">sentence</span> = <span class="s">"${item.pre} <input id="ans-input" autocomplete="off" style="width:50px; text-align:center;"> ${item.post}"</span>;</span></div>
-<div class="line"><span class="ln">${lineNum+5}</span><span class="code"><span class="v">console</span>.<span class="f">log</span>(<span class="v">sentence</span>);</span></div>
-<div class="line"><span class="ln">${lineNum+6}</span><span class="code" id="feedback"></span></div>`;
-            } else {
-                let typeStr = item.t === 'v' ? 'Verb' : (item.t === 'adj' ? 'Adjective' : (item.t === 'adv' ? 'Adverb' : 'Noun'));
-                html = `
-<div class="line"><span class="ln">${lineNum}</span><span class="code"><span class="doc">/**</span></span></div>
-<div class="line"><span class="ln">${lineNum+1}</span><span class="code"><span class="doc"> * Reading: ${item.r} </span></span></div>
-<div class="line"><span class="ln">${lineNum+2}</span><span class="code"><span class="doc"> * Hint:    ${item.h} </span></span></div>
-<div class="line"><span class="ln">${lineNum+3}</span><span class="code"><span class="doc"> */</span></span></div>
-<div class="line"><span class="ln">${lineNum+4}</span><span class="code"><span class="k">export</span> <span class="k">const</span> <span class="v">${item.k}</span>: <span class="t">${typeStr}</span> = <span class="s">"<input id="ans-input" autocomplete="off" placeholder="...">"</span>;</span></div>
-<div class="line"><span class="ln">${lineNum+5}</span><span class="code" id="feedback"></span></div>`;
-            }
+    if (correct) {
+        input.style.color = '#b5cea8';
+        feedback.innerHTML = `<span class="c">// ✓ OK. Saved. <span style="opacity:0.5; font-size:0.8em;">(Press Enter)</span></span>`;
+        correctCount++;
+        scoreIndicator.textContent = `✓ ${correctCount}`;
+    } else {
+        input.style.color = '#f44747';
+        input.style.borderBottom = '1px solid #f44747';
+        feedback.innerHTML = `<span class="c" style="color:#f44747">// ✗ Expected: "${answers[0]}" <span style="color:#858585;">(Press Enter)</span></span>`;
+        // Pronounce the correct answer on wrong answer
+        if ('speechSynthesis' in window && currentItem) {
+            setTimeout(() => pronounce(currentItem.k), 200);
+        }
+    }
+}
 
-            codeContainer.innerHTML = html;
-            
+document.addEventListener('keydown', (e) => {
+    // K = 手動發音
+    if (e.key === 'k' || e.key === 'K') {
+        const activeEl = document.activeElement;
+        if (activeEl && activeEl.tagName === 'INPUT') return;
+        if (currentItem) pronounce(currentItem.k);
+        return;
+    }
+    // ESC = Boss Mode
+    if (e.key === 'Escape') {
+        isBossMode = !isBossMode;
+        bossScreen.style.display = isBossMode ? 'block' : 'none';
+        document.title = isBossMode ? 'Command Prompt' : 'vocabulary.ts - Project N5';
+        if (!isBossMode) {
             const input = document.getElementById('ans-input');
-            input.focus();
-            input.dataset.answers = JSON.stringify(item.a);
-            
-            // 監聽 Enter 鍵 (雙重邏輯)
-            input.addEventListener('keydown', (e) => {
-                if(e.key === 'Enter') {
-                    if (gameState === 'input') {
-                        checkAnswer(input);
-                    } else {
-                        renderQuestion();
-                    }
-                }
-            });
-            
-            progressIndicator.innerText = `Ln ${lineNum+4}, Col 12`;
+            if (input) input.focus();
         }
-
-        function checkAnswer(input) {
-            const userVal = input.value.trim().toLowerCase();
-            const answers = JSON.parse(input.dataset.answers);
-            const feedback = document.getElementById('feedback');
-            
-            const correct = answers.some(a => a.toLowerCase() === userVal);
-
-            gameState = 'result'; // 切換狀態
-
-            if (correct) {
-                input.style.color = '#b5cea8'; // Greenish
-                feedback.innerHTML = `<span class="c">// OK. Saved. <span style="opacity:0.5; font-size:0.8em;">(Press Enter)</span></span>`;
-                correctCount++;
-            } else {
-                input.style.color = '#f44747'; // Red
-                input.style.borderBottom = '1px solid #f44747';
-                feedback.innerHTML = `<span class="c" style="color:#f44747">// Error: Expected "${answers[0]}" <span style="color:#858585;">(Press Enter)</span></span>`;
-            }
-        }
-
-        document.addEventListener('keydown', (e) => {
-            // Boss Key
-            if (e.key === 'Escape') {
-                isBossMode = !isBossMode;
-                if(isBossMode) {
-                    bossScreen.style.display = 'block';
-                    document.title = 'Command Prompt';
-                } else {
-                    bossScreen.style.display = 'none';
-                    document.title = 'vocabulary.ts - Project N5';
-                    const input = document.getElementById('ans-input');
-                    if(input) input.focus();
-                }
-            }
-            // 全域 Enter (防止焦點不在輸入框時無法下一題)
-            if (e.key === 'Enter' && gameState === 'result') {
-                renderQuestion();
-            }
-        });
-
-        // 啟動
+    }
+    // 全域 Enter
+    if (e.key === 'Enter' && gameState === 'result') {
         renderQuestion();
-    </script>
+    }
+});
+
+renderQuestion();
+</script>
 </body>
 </html>
