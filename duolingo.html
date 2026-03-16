@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N5 日語練習</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+        :root {
+            --green: #58cc02;
+            --green-dark: #46a302;
+            --green-light: #d7ffb8;
+            --blue: #1cb0f6;
+            --blue-dark: #0a91d3;
+            --red: #ff4b4b;
+            --red-light: #ffdfe0;
+            --yellow: #ffc800;
+            --yellow-dark: #e0a800;
+            --gray: #e5e5e5;
+            --gray-dark: #afafaf;
+            --text: #3c3c3c;
+            --text-light: #777;
+            --white: #ffffff;
+            --bg: #f7f7f7;
+            --shadow: 0 4px 0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Nunito', 'Noto Sans TC', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== TOP BAR ===== */
+        .topbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            background: white;
+            border-bottom: 2px solid var(--gray);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .close-btn {
+            width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--gray-dark);
+            font-size: 22px;
+            flex-shrink: 0;
+            transition: background 0.1s;
+        }
+        .close-btn:hover { background: var(--gray); }
+
+        .progress-bar-wrap {
+            flex: 1;
+            height: 16px;
+            background: var(--gray);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--green);
+            border-radius: 8px;
+            transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        .hearts {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .heart {
+            font-size: 22px;
+            transition: transform 0.2s;
+        }
+        .heart.lost { filter: grayscale(1); opacity: 0.3; }
+        .heart.shake { animation: shakeHeart 0.4s ease; }
+
+        @keyframes shakeHeart {
+            0%,100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            60% { transform: translateX(6px); }
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 32px 20px 120px;
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .type-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 16px;
+        }
+
+        .question-card {
+            background: white;
+            border: 2px solid var(--gray);
+            border-radius: 16px;
+            padding: 28px 28px 24px;
+            width: 100%;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .question-kana {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+        .question-kanji {
+            font-size: 48px;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+        .question-hint {
+            font-size: 13px;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        /* Grammar fill-in question */
+        .question-grammar {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.6;
+        }
+        .fill-blank {
+            display: inline-block;
+            min-width: 60px;
+            border-bottom: 3px solid var(--blue);
+            padding: 0 8px;
+            color: var(--blue);
+        }
+        .question-grammar-desc {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        /* ===== OPTIONS ===== */
+        .instruction {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text);
+            align-self: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+        }
+        @media (max-width: 420px) {
+            .options { grid-template-columns: 1fr; }
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid var(--gray);
+            border-radius: 12px;
+            padding: 16px 12px;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+            cursor: pointer;
+            transition: border-color 0.1s, transform 0.1s, box-shadow 0.1s;
+            box-shadow: var(--shadow) #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-align: left;
+            min-height: 64px;
+        }
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--blue);
+            box-shadow: var(--shadow) var(--blue-dark);
+        }
+        .option-btn:active:not(:disabled) {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #e0e0e0;
+        }
+        .option-btn .badge {
+            min-width: 28px; height: 28px;
+            border-radius: 6px;
+            background: var(--gray);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px;
+            font-weight: 800;
+            flex-shrink: 0;
+            transition: background 0.1s;
+        }
+        .option-btn.selected {
+            border-color: var(--blue);
+            box-shadow: var(--shadow) var(--blue-dark);
+        }
+        .option-btn.selected .badge { background: var(--blue); color: white; }
+
+        .option-btn.correct {
+            border-color: var(--green);
+            background: var(--green-light);
+            box-shadow: var(--shadow) var(--green-dark);
+            color: var(--green-dark);
+        }
+        .option-btn.correct .badge { background: var(--green); color: white; }
+
+        .option-btn.wrong {
+            border-color: var(--red);
+            background: var(--red-light);
+            box-shadow: var(--shadow) #c03434;
+            color: var(--red);
+        }
+        .option-btn.wrong .badge { background: var(--red); color: white; }
+
+        .option-btn:disabled { cursor: default; }
+
+        /* ===== BOTTOM FEEDBACK BAR ===== */
+        .bottom-area {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            padding: 16px 20px;
+            background: white;
+            border-top: 2px solid var(--gray);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .feedback-msg {
+            display: none;
+            align-items: center;
+            gap: 12px;
+        }
+        .feedback-msg.visible { display: flex; }
+        .feedback-msg.correct-msg { color: var(--green-dark); }
+        .feedback-msg.wrong-msg { color: var(--red); }
+
+        .feedback-icon {
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+        .feedback-text { flex: 1; }
+        .feedback-title { font-size: 17px; font-weight: 800; }
+        .feedback-answer { font-size: 14px; font-weight: 600; margin-top: 2px; }
+
+        .action-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-check, .btn-continue, .btn-skip {
+            height: 52px;
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.1s, box-shadow 0.1s;
+            letter-spacing: 0.03em;
+        }
+        .btn-check {
+            flex: 1;
+            background: var(--green);
+            color: white;
+            box-shadow: var(--shadow) var(--green-dark);
+        }
+        .btn-check:hover:not(:disabled) { filter: brightness(1.05); }
+        .btn-check:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--green-dark); }
+        .btn-check:disabled { background: var(--gray); color: var(--gray-dark); box-shadow: var(--shadow) #ccc; cursor: default; }
+
+        .btn-continue {
+            flex: 1;
+            background: var(--green);
+            color: white;
+            box-shadow: var(--shadow) var(--green-dark);
+        }
+        .btn-continue.red {
+            background: var(--red);
+            box-shadow: var(--shadow) #c03434;
+        }
+        .btn-continue:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--green-dark); }
+        .btn-continue.red:active { box-shadow: 0 1px 0 #c03434; }
+
+        .btn-skip {
+            padding: 0 20px;
+            background: transparent;
+            color: var(--gray-dark);
+            border: 2px solid var(--gray);
+        }
+        .btn-skip:hover { border-color: #bbb; color: var(--text); }
+
+        /* ===== COMPLETE SCREEN ===== */
+        #complete-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            padding: 40px 20px;
+            text-align: center;
+            gap: 24px;
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        #complete-screen.show { display: flex; }
+
+        .trophy { font-size: 80px; animation: bounce 0.6s ease; }
+        @keyframes bounce {
+            0% { transform: scale(0); opacity: 0; }
+            70% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .complete-title {
+            font-size: 30px;
+            font-weight: 900;
+            color: var(--green-dark);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+        }
+        .stat-card {
+            background: white;
+            border: 2px solid var(--gray);
+            border-radius: 14px;
+            padding: 16px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .stat-icon { font-size: 28px; }
+        .stat-value { font-size: 22px; font-weight: 900; color: var(--text); }
+        .stat-label { font-size: 12px; font-weight: 700; color: var(--text-light); }
+
+        .btn-restart {
+            background: var(--green);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            height: 56px;
+            width: 100%;
+            font-family: inherit;
+            font-size: 17px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: var(--shadow) var(--green-dark);
+            letter-spacing: 0.03em;
+        }
+        .btn-restart:hover { filter: brightness(1.05); }
+        .btn-restart:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--green-dark); }
+
+        /* ===== XP POPUP ===== */
+        .xp-popup {
+            position: fixed;
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--yellow-dark);
+            pointer-events: none;
+            z-index: 999;
+            animation: floatUp 1s ease forwards;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-60px); }
+        }
+
+        /* ===== STREAK FLASH ===== */
+        .streak-flash {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(88,204,2,0.15);
+            pointer-events: none;
+            z-index: 100;
+            animation: flashGreen 0.4s ease;
+        }
+        @keyframes flashGreen {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+    <div class="close-btn" onclick="location.reload()">✕</div>
+    <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+    </div>
+    <div class="hearts" id="hearts"></div>
+</div>
+
+<!-- MAIN QUIZ AREA -->
+<div class="main" id="quiz-area">
+    <div class="type-label" id="type-label"></div>
+    <div class="question-card" id="question-card"></div>
+    <div class="instruction" id="instruction"></div>
+    <div class="options" id="options"></div>
+</div>
+
+<!-- COMPLETE SCREEN -->
+<div id="complete-screen">
+    <div class="trophy">🏆</div>
+    <div class="complete-title">太厲害了！</div>
+    <p style="font-size:16px; color:var(--text-light); font-weight:700;">本回合練習完成</p>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-icon">⭐</span>
+            <span class="stat-value" id="final-xp">0</span>
+            <span class="stat-label">獲得 XP</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon">🎯</span>
+            <span class="stat-value" id="final-accuracy">0%</span>
+            <span class="stat-label">正確率</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon">❤️</span>
+            <span class="stat-value" id="final-hearts">0</span>
+            <span class="stat-label">剩餘生命</span>
+        </div>
+    </div>
+    <button class="btn-restart" onclick="startGame()">再練一次 🔄</button>
+</div>
+
+<!-- BOTTOM FEEDBACK BAR -->
+<div class="bottom-area" id="bottom-area">
+    <div class="feedback-msg" id="feedback-msg">
+        <span class="feedback-icon" id="feedback-icon"></span>
+        <div class="feedback-text">
+            <div class="feedback-title" id="feedback-title"></div>
+            <div class="feedback-answer" id="feedback-answer"></div>
+        </div>
+    </div>
+    <div class="action-row">
+        <button class="btn-skip" id="btn-skip" onclick="skipQuestion()">跳過</button>
+        <button class="btn-check" id="btn-check" disabled onclick="checkAnswer()">確認</button>
+    </div>
+</div>
+
+<div class="streak-flash" id="streak-flash"></div>
+
+<script>
+// ============================================================
+// VOCABULARY DATA
+// ============================================================
+const vocab = [
+    {k:'私', r:'わたし', a:'我', t:'n'},
+    {k:'あなた', r:'あなた', a:'你', t:'n'},
+    {k:'先生', r:'せんせい', a:'老師', t:'n'},
+    {k:'学生', r:'がくせい', a:'學生', t:'n'},
+    {k:'会社員', r:'かいしゃいん', a:'上班族', t:'n'},
+    {k:'子供', r:'こども', a:'小孩', t:'n'},
+    {k:'父', r:'ちち', a:'(我的)父親', t:'n'},
+    {k:'母', r:'はは', a:'(我的)母親', t:'n'},
+    {k:'今', r:'いま', a:'現在', t:'n'},
+    {k:'今日', r:'きょう', a:'今天', t:'n'},
+    {k:'昨日', r:'きのう', a:'昨天', t:'n'},
+    {k:'明日', r:'あした', a:'明天', t:'n'},
+    {k:'朝', r:'あさ', a:'早上', t:'n'},
+    {k:'晩', r:'ばん', a:'晚上', t:'n'},
+    {k:'毎日', r:'まいにち', a:'每天', t:'n'},
+    {k:'学校', r:'がっこう', a:'學校', t:'n'},
+    {k:'病院', r:'びょういん', a:'醫院', t:'n'},
+    {k:'銀行', r:'ぎんこう', a:'銀行', t:'n'},
+    {k:'図書館', r:'としょかん', a:'圖書館', t:'n'},
+    {k:'本', r:'ほん', a:'書', t:'n'},
+    {k:'車', r:'くるま', a:'車', t:'n'},
+    {k:'ご飯', r:'ごはん', a:'飯/餐', t:'n'},
+    {k:'肉', r:'にく', a:'肉', t:'n'},
+    {k:'魚', r:'さかな', a:'魚', t:'n'},
+    {k:'水', r:'みず', a:'水', t:'n'},
+    // Verbs
+    {k:'起きます', r:'おきます', a:'起床', t:'v'},
+    {k:'寝ます', r:'ねます', a:'睡覺', t:'v'},
+    {k:'行きます', r:'いきます', a:'去', t:'v'},
+    {k:'来ます', r:'きます', a:'來', t:'v'},
+    {k:'帰ります', r:'かえります', a:'回家', t:'v'},
+    {k:'食べます', r:'たべます', a:'吃', t:'v'},
+    {k:'飲みます', r:'のみます', a:'喝', t:'v'},
+    {k:'買います', r:'かいます', a:'買', t:'v'},
+    {k:'見ます', r:'みます', a:'看', t:'v'},
+    {k:'聞きます', r:'ききます', a:'聽/問', t:'v'},
+    {k:'読みます', r:'よみます', a:'閱讀', t:'v'},
+    {k:'書きます', r:'かきます', a:'寫', t:'v'},
+    // Adjectives
+    {k:'大きい', r:'おおきい', a:'大的', t:'adj'},
+    {k:'小さい', r:'ちいさい', a:'小的', t:'adj'},
+    {k:'新しい', r:'あたらしい', a:'新的', t:'adj'},
+    {k:'古い', r:'ふるい', a:'舊的', t:'adj'},
+    {k:'いい', r:'いい', a:'好的', t:'adj'},
+    {k:'暑い', r:'あつい', a:'熱的', t:'adj'},
+    {k:'寒い', r:'さむい', a:'冷的', t:'adj'},
+    {k:'おいしい', r:'おいしい', a:'好吃的', t:'adj'},
+    {k:'楽しい', r:'たのしい', a:'愉快的', t:'adj'},
+    {k:'綺麗', r:'きれい', a:'漂亮的', t:'adj'},
+    {k:'好き', r:'すき', a:'喜歡', t:'adj'},
+    {k:'とても', r:'とても', a:'非常', t:'adv'},
+];
+
+// Question types: 'kanji2meaning', 'meaning2kanji', 'kana2meaning', 'meaning2kana'
+const QUESTION_TYPES = ['kanji2meaning', 'kanji2meaning', 'meaning2kanji', 'kana2meaning'];
+
+// ============================================================
+// GAME STATE
+// ============================================================
+const TOTAL_QUESTIONS = 15;
+const MAX_HEARTS = 5;
+const XP_PER_CORRECT = 10;
+
+let queue = [];
+let currentQ = null;
+let selectedOption = null;
+let hearts = MAX_HEARTS;
+let xp = 0;
+let answered = 0;
+let correctCount = 0;
+let state = 'waiting'; // 'waiting' | 'answered'
+let questionsDone = 0;
+
+function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+function startGame() {
+    queue = shuffle(vocab).slice(0, TOTAL_QUESTIONS);
+    hearts = MAX_HEARTS;
+    xp = 0;
+    answered = 0;
+    correctCount = 0;
+    questionsDone = 0;
+    selectedOption = null;
+    state = 'waiting';
+
+    document.getElementById('complete-screen').classList.remove('show');
+    document.getElementById('quiz-area').style.display = 'flex';
+    document.getElementById('bottom-area').style.display = 'flex';
+
+    renderHearts();
+    updateProgress();
+    nextQuestion();
+}
+
+function renderHearts() {
+    const el = document.getElementById('hearts');
+    el.innerHTML = '';
+    for (let i = 0; i < MAX_HEARTS; i++) {
+        const h = document.createElement('span');
+        h.className = 'heart' + (i >= hearts ? ' lost' : '');
+        h.textContent = '❤️';
+        h.id = `heart-${i}`;
+        el.appendChild(h);
+    }
+}
+
+function updateProgress() {
+    const pct = (questionsDone / TOTAL_QUESTIONS) * 100;
+    document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+function nextQuestion() {
+    if (queue.length === 0) {
+        showComplete();
+        return;
+    }
+
+    const item = queue.pop();
+    const qType = QUESTION_TYPES[Math.floor(Math.random() * QUESTION_TYPES.length)];
+    currentQ = buildQuestion(item, qType);
+
+    renderQuestion(currentQ);
+    resetBottomBar();
+    state = 'waiting';
+    selectedOption = null;
+}
+
+function buildQuestion(item, type) {
+    // Get 3 wrong options from vocab
+    const others = shuffle(vocab.filter(v => v.k !== item.k)).slice(0, 3);
+
+    let question, questionSub, questionHint, questionType, options, correctAnswer, instruction;
+
+    if (type === 'kanji2meaning') {
+        question = item.k;
+        questionSub = item.r;
+        questionHint = typeLabel(item.t);
+        instruction = '選出正確的中文意思';
+        correctAnswer = item.a;
+        options = shuffle([item.a, ...others.map(o => o.a)]);
+        questionType = 'vocab';
+    } else if (type === 'meaning2kanji') {
+        question = item.a;
+        questionSub = '';
+        questionHint = typeLabel(item.t);
+        instruction = '選出對應的日文';
+        correctAnswer = item.k;
+        options = shuffle([item.k, ...others.map(o => o.k)]);
+        questionType = 'vocab';
+    } else if (type === 'kana2meaning') {
+        question = item.r;
+        questionSub = '';
+        questionHint = typeLabel(item.t);
+        instruction = '選出正確的中文意思';
+        correctAnswer = item.a;
+        options = shuffle([item.a, ...others.map(o => o.a)]);
+        questionType = 'vocab';
+    } else { // meaning2kana
+        question = item.a;
+        questionSub = '';
+        questionHint = typeLabel(item.t);
+        instruction = '選出正確的假名讀音';
+        correctAnswer = item.r;
+        options = shuffle([item.r, ...others.map(o => o.r)]);
+        questionType = 'vocab';
+    }
+
+    return { question, questionSub, questionHint, instruction, options, correctAnswer, questionType, item };
+}
+
+function typeLabel(t) {
+    return {n:'名詞', v:'動詞', adj:'形容詞', adv:'副詞'}[t] || '';
+}
+
+function renderQuestion(q) {
+    document.getElementById('type-label').textContent = q.questionHint;
+    document.getElementById('instruction').textContent = q.instruction;
+
+    const card = document.getElementById('question-card');
+    card.innerHTML = `
+        <div class="question-kana">${q.questionSub}</div>
+        <div class="question-kanji">${q.question}</div>
+    `;
+
+    const optEl = document.getElementById('options');
+    const labels = ['A', 'B', 'C', 'D'];
+    optEl.innerHTML = '';
+    q.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerHTML = `<span class="badge">${labels[i]}</span>${opt}`;
+        btn.dataset.value = opt;
+        btn.onclick = () => selectOption(btn, opt);
+        optEl.appendChild(btn);
+    });
+}
+
+function selectOption(btn, value) {
+    if (state !== 'waiting') return;
+
+    // Deselect all
+    document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedOption = value;
+
+    const checkBtn = document.getElementById('btn-check');
+    checkBtn.disabled = false;
+}
+
+function checkAnswer() {
+    if (state !== 'waiting' || selectedOption === null) return;
+    state = 'answered';
+    answered++;
+
+    const isCorrect = selectedOption === currentQ.correctAnswer;
+
+    // Highlight options
+    document.querySelectorAll('.option-btn').forEach(btn => {
+        btn.disabled = true;
+        const val = btn.dataset.value;
+        if (val === currentQ.correctAnswer) btn.classList.add('correct');
+        else if (val === selectedOption && !isCorrect) btn.classList.add('wrong');
+    });
+
+    if (isCorrect) {
+        correctCount++;
+        xp += XP_PER_CORRECT;
+        questionsDone++;
+        showFeedback(true, currentQ.correctAnswer);
+        showXpPopup();
+        flashCorrect();
+    } else {
+        hearts--;
+        renderHearts();
+        shakeHeart();
+        questionsDone++;
+        showFeedback(false, currentQ.correctAnswer);
+    }
+
+    updateProgress();
+    switchToContinue(isCorrect);
+}
+
+function skipQuestion() {
+    if (state === 'answered') {
+        nextQuestion();
+        return;
+    }
+    // Skip = mark as wrong
+    state = 'answered';
+    answered++;
+    hearts--;
+    questionsDone++;
+    renderHearts();
+    shakeHeart();
+    updateProgress();
+
+    // show correct answer
+    document.querySelectorAll('.option-btn').forEach(btn => {
+        btn.disabled = true;
+        if (btn.dataset.value === currentQ.correctAnswer) btn.classList.add('correct');
+    });
+
+    showFeedback(false, currentQ.correctAnswer);
+    switchToContinue(false);
+}
+
+function showFeedback(correct, answer) {
+    const msg = document.getElementById('feedback-msg');
+    const icon = document.getElementById('feedback-icon');
+    const title = document.getElementById('feedback-title');
+    const ansEl = document.getElementById('feedback-answer');
+
+    msg.className = 'feedback-msg visible ' + (correct ? 'correct-msg' : 'wrong-msg');
+    icon.textContent = correct ? '✅' : '❌';
+    title.textContent = correct ? '答對了！太棒了！' : '答錯了，再加油！';
+    ansEl.textContent = correct ? `+${XP_PER_CORRECT} XP` : `正確答案：${answer}`;
+}
+
+function switchToContinue(isCorrect) {
+    const actRow = document.querySelector('.action-row');
+    actRow.innerHTML = `<button class="btn-continue ${isCorrect ? '' : 'red'}" onclick="nextQuestion()">${isCorrect ? '繼續 →' : '知道了'}</button>`;
+}
+
+function resetBottomBar() {
+    const msg = document.getElementById('feedback-msg');
+    msg.className = 'feedback-msg';
+
+    const actRow = document.querySelector('.action-row');
+    actRow.innerHTML = `
+        <button class="btn-skip" id="btn-skip" onclick="skipQuestion()">跳過</button>
+        <button class="btn-check" id="btn-check" disabled onclick="checkAnswer()">確認</button>
+    `;
+}
+
+function showXpPopup() {
+    const popup = document.createElement('div');
+    popup.className = 'xp-popup';
+    popup.textContent = `+${XP_PER_CORRECT} XP ⭐`;
+    const bar = document.getElementById('progress-bar');
+    const rect = bar.getBoundingClientRect();
+    popup.style.top = (rect.bottom + 10) + 'px';
+    popup.style.right = '20px';
+    document.body.appendChild(popup);
+    setTimeout(() => popup.remove(), 1000);
+}
+
+function flashCorrect() {
+    const el = document.getElementById('streak-flash');
+    el.style.display = 'block';
+    el.style.animation = 'none';
+    requestAnimationFrame(() => {
+        el.style.animation = 'flashGreen 0.4s ease forwards';
+    });
+    setTimeout(() => { el.style.display = 'none'; }, 400);
+}
+
+function shakeHeart() {
+    const lost = document.querySelector(`.heart:not(.lost)`);
+    if (!lost) return;
+    // find the last non-lost
+    const allHearts = document.querySelectorAll('.heart');
+    // The heart that just got lost is hearts index (hearts = already decremented)
+    const target = allHearts[hearts];
+    if (target) {
+        target.classList.add('shake');
+        setTimeout(() => target.classList.remove('shake'), 400);
+    }
+}
+
+function showComplete() {
+    document.getElementById('quiz-area').style.display = 'none';
+    document.getElementById('bottom-area').style.display = 'none';
+
+    const accuracy = answered > 0 ? Math.round((correctCount / answered) * 100) : 0;
+    document.getElementById('final-xp').textContent = xp;
+    document.getElementById('final-accuracy').textContent = accuracy + '%';
+    document.getElementById('final-hearts').textContent = Math.max(hearts, 0);
+
+    document.getElementById('complete-screen').classList.add('show');
+}
+
+// ============================================================
+// START
+// ============================================================
+startGame();
+</script>
+</body>
+</html>
