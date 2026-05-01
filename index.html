@@ -2,413 +2,1713 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>vocabulary.ts - Project N5</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>旅遊日語 N5 · 邊玩邊學</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Noto+Sans+JP:wght@500;700;900&family=Noto+Sans+TC:wght@500;700&display=swap');
+
         :root {
-            --bg: #1e1e1e;
-            --fg: #d4d4d4;
-            --kw: #c586c0; /* Keyword */
-            --var: #9cdcfe; /* Variable */
-            --fn: #dcdcaa; /* Function */
-            --str: #ce9178; /* String */
-            --type: #4ec9b0; /* Type */
-            --num: #b5cea8; /* Number */
-            --cm: #6a9955; /* Comment */
-            --sel: #264f78; /* Selection */
+            --green: #58cc02;
+            --green-dark: #46a302;
+            --green-light: #d7ffb8;
+            --blue: #1cb0f6;
+            --blue-dark: #0a91d3;
+            --purple: #ce82ff;
+            --purple-dark: #a560d8;
+            --orange: #ff9600;
+            --orange-dark: #e08600;
+            --pink: #ff86d0;
+            --red: #ff4b4b;
+            --red-light: #ffdfe0;
+            --yellow: #ffc800;
+            --yellow-dark: #e0a800;
+            --gray: #e5e5e5;
+            --gray-dark: #afafaf;
+            --text: #3c3c3c;
+            --text-light: #777;
+            --white: #ffffff;
+            --bg: #f7f7f7;
+            --shadow: 0 4px 0;
         }
-        * { box-sizing: border-box; }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
+            font-family: 'Nunito', 'Noto Sans TC', sans-serif;
             background: var(--bg);
-            color: var(--fg);
-            font-family: Consolas, 'Courier New', monospace;
-            margin: 0;
-            height: 100vh;
+            color: var(--text);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            font-size: 15px;
+            -webkit-tap-highlight-color: transparent;
         }
-        /* Layout */
-        .layout { display: flex; flex: 1; height: 100%; }
-        .sidebar {
-            width: 50px;
-            background: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 10px;
-            color: #858585;
-        }
-        .file-explorer {
-            width: 200px;
-            background: #252526;
-            display: none; 
-        }
-        @media(min-width: 800px) { .file-explorer { display: block; } }
-        
-        .editor { flex: 1; display: flex; flex-direction: column; background: var(--bg); position: relative;}
-        
-        /* Tabs */
-        .tabs { display: flex; background: #252526; height: 35px; overflow: hidden; }
-        .tab {
-            padding: 0 15px;
-            display: flex;
-            align-items: center;
-            background: var(--bg);
-            color: #fff;
-            font-size: 13px;
-            border-top: 2px solid #007acc;
-            cursor: pointer;
-        }
-        .tab.inactive { background: #2d2d2d; color: #969696; border-top: 2px solid transparent; }
-        
-        /* Code Area */
-        .code-area { flex: 1; padding: 10px 0; overflow-y: auto; font-size: 16px; line-height: 1.5; }
-        .line { display: flex; padding: 0 5px; }
-        .ln { 
-            width: 40px; 
-            text-align: right; 
-            padding-right: 15px; 
-            color: #858585; 
-            user-select: none; 
-            font-size: 14px;
-        }
-        .code { flex: 1; white-space: pre-wrap; word-break: break-all; }
 
-        /* Inputs */
-        input {
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid var(--cm);
-            color: var(--str);
-            font-family: inherit;
-            font-size: inherit;
-            outline: none;
-            min-width: 100px;
-            text-align: left;
-        }
-        input:focus { border-bottom: 1px solid var(--fg); }
-        
-        /* Status Bar */
-        .status-bar {
-            height: 22px;
-            background: #007acc;
-            color: white;
-            font-size: 12px;
+        .jp { font-family: 'Noto Sans JP', sans-serif; }
+
+        /* ========================================================
+           HOME SCREEN
+        ======================================================== */
+        #home-screen {
+            flex: 1;
+            max-width: 720px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px 16px 60px;
             display: flex;
-            align-items: center;
+            flex-direction: column;
+            gap: 24px;
+        }
+        #home-screen.hidden { display: none; }
+
+        .home-header {
+            display: flex;
             justify-content: space-between;
-            padding: 0 10px;
-            cursor: default;
+            align-items: center;
+            padding: 8px 4px;
+        }
+        .home-title {
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--text);
+        }
+        .home-title .accent {
+            color: var(--green);
+        }
+        .home-subtitle {
+            font-size: 13px;
+            color: var(--text-light);
+            font-weight: 700;
+            margin-top: 2px;
         }
 
-        /* Syntax Highlighting Classes */
-        .k { color: var(--kw); }
-        .v { color: var(--var); }
-        .f { color: var(--fn); }
-        .s { color: var(--str); }
-        .t { color: var(--type); }
-        .c { color: var(--cm); }
-        .doc { color: #5f9e5c; font-style: italic; } 
-        
-        /* Boss Mode Overlay */
-        #boss-screen {
+        .stats-row {
+            display: flex;
+            gap: 10px;
+        }
+        .stat-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: white;
+            border: 2px solid var(--gray);
+            border-radius: 999px;
+            padding: 6px 12px;
+            font-weight: 800;
+            font-size: 14px;
+            color: var(--text);
+        }
+        .stat-pill .icon { font-size: 16px; }
+        .stat-pill.streak { color: var(--orange); border-color: #ffe0b3; background: #fff7ec; }
+        .stat-pill.xp { color: var(--yellow-dark); border-color: #fff0b3; background: #fffaea; }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 900;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0 4px;
+            margin-bottom: 4px;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        @media (min-width: 540px) {
+            .category-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        .cat-card {
+            background: white;
+            border: 2px solid var(--gray);
+            border-radius: 16px;
+            padding: 18px 14px 16px;
+            cursor: pointer;
+            box-shadow: var(--shadow) #e0e0e0;
+            transition: transform 0.1s, box-shadow 0.1s, border-color 0.1s;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-height: 130px;
+            position: relative;
+            overflow: hidden;
+        }
+        .cat-card:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #e0e0e0;
+        }
+        .cat-card .cat-icon {
+            font-size: 36px;
+            line-height: 1;
+        }
+        .cat-card .cat-name {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text);
+        }
+        .cat-card .cat-count {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 700;
+            margin-top: auto;
+        }
+        .cat-card .cat-progress {
+            height: 6px;
+            background: var(--gray);
+            border-radius: 3px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+        .cat-card .cat-progress-fill {
+            height: 100%;
+            background: var(--green);
+            border-radius: 3px;
+            transition: width 0.4s;
+        }
+        .cat-card[data-color="blue"]    { border-color: #c2eaff; box-shadow: var(--shadow) #c2eaff; }
+        .cat-card[data-color="orange"]  { border-color: #ffe0b3; box-shadow: var(--shadow) #ffe0b3; }
+        .cat-card[data-color="purple"]  { border-color: #efd9ff; box-shadow: var(--shadow) #efd9ff; }
+        .cat-card[data-color="pink"]    { border-color: #ffd1ec; box-shadow: var(--shadow) #ffd1ec; }
+        .cat-card[data-color="green"]   { border-color: #d2f3a4; box-shadow: var(--shadow) #d2f3a4; }
+        .cat-card[data-color="red"]     { border-color: #ffd1d1; box-shadow: var(--shadow) #ffd1d1; }
+        .cat-card[data-color="yellow"]  { border-color: #ffe896; box-shadow: var(--shadow) #ffe896; }
+
+        .info-banner {
+            background: linear-gradient(135deg, #58cc02 0%, #1cb0f6 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 18px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.08);
+        }
+        .info-banner .ico { font-size: 36px; line-height: 1; }
+        .info-banner .txt-title { font-size: 16px; font-weight: 900; }
+        .info-banner .txt-sub { font-size: 13px; font-weight: 600; opacity: 0.95; margin-top: 2px; }
+
+        /* ========================================================
+           QUIZ SCREEN
+        ======================================================== */
+        #quiz-screen {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        #quiz-screen.show { display: flex; }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: white;
+            border-bottom: 2px solid var(--gray);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .close-btn {
+            width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--gray-dark);
+            font-size: 22px;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+        .close-btn:active { background: var(--gray); }
+
+        .progress-bar-wrap {
+            flex: 1;
+            height: 14px;
+            background: var(--gray);
+            border-radius: 7px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--green);
+            border-radius: 7px;
+            transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+            position: relative;
+        }
+        .progress-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 2px; left: 4px; right: 4px;
+            height: 4px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 2px;
+        }
+
+        .hearts {
+            display: flex;
+            gap: 3px;
+            flex-shrink: 0;
+            align-items: center;
+            color: var(--red);
+            font-weight: 900;
+        }
+        .heart-emoji {
+            font-size: 20px;
+            margin-right: 2px;
+        }
+        .heart-num { font-size: 16px; }
+
+        .quiz-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 16px 200px;
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .type-label {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
+            align-self: flex-start;
+        }
+
+        .instruction {
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--text);
+            align-self: flex-start;
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+
+        .question-card {
+            background: white;
+            border: 2px solid var(--gray);
+            border-radius: 16px;
+            padding: 28px 22px 24px;
+            width: 100%;
+            margin-bottom: 24px;
+            text-align: center;
+            position: relative;
+        }
+
+        .question-kana {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+        .question-kanji {
+            font-size: 44px;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+        .question-meaning {
+            font-size: 22px;
+            font-weight: 800;
+            line-height: 1.3;
+        }
+
+        /* Speak button */
+        .speak-btn {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--blue);
+            color: white;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 3px 0 var(--blue-dark);
+        }
+        .speak-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 var(--blue-dark);
+        }
+        .speak-btn.big {
+            position: static;
+            width: 90px;
+            height: 90px;
+            font-size: 44px;
+            margin: 16px auto 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 0 var(--blue-dark);
+        }
+
+        /* Grammar fill blank */
+        .question-grammar {
+            font-size: 26px;
+            font-weight: 800;
+            line-height: 1.6;
+        }
+        .fill-blank {
+            display: inline-block;
+            min-width: 70px;
+            border-bottom: 4px solid var(--blue);
+            padding: 0 10px;
+            color: var(--blue);
+            font-weight: 900;
+            margin: 0 2px;
+        }
+        .fill-blank.filled { color: var(--green); border-bottom-color: var(--green); }
+        .grammar-desc {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-top: 12px;
+            font-weight: 700;
+        }
+        .grammar-reading {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-top: 4px;
+            font-weight: 600;
+            font-style: italic;
+        }
+
+        /* Phrase question */
+        .phrase-zh {
+            font-size: 22px;
+            font-weight: 800;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+        .phrase-tip {
+            font-size: 13px;
+            color: var(--text-light);
+            font-weight: 700;
+        }
+
+        /* ========================================================
+           OPTIONS
+        ======================================================== */
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+        }
+        .options.single-col { grid-template-columns: 1fr; }
+        @media (max-width: 380px) {
+            .options { grid-template-columns: 1fr; }
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid var(--gray);
+            border-radius: 14px;
+            padding: 14px 12px;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+            cursor: pointer;
+            transition: border-color 0.1s, transform 0.1s, box-shadow 0.1s;
+            box-shadow: var(--shadow) #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-align: left;
+            min-height: 64px;
+        }
+        .option-btn:active:not(:disabled) {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #e0e0e0;
+        }
+        .option-btn .badge {
+            min-width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            background: white;
+            border: 2px solid var(--gray);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px;
+            font-weight: 800;
+            flex-shrink: 0;
+            color: var(--text-light);
+        }
+        .option-btn.selected {
+            border-color: var(--blue);
+            box-shadow: var(--shadow) var(--blue-dark);
+            background: #ddf4ff;
+        }
+        .option-btn.selected .badge { background: var(--blue); color: white; border-color: var(--blue); }
+
+        .option-btn.correct {
+            border-color: var(--green);
+            background: var(--green-light);
+            box-shadow: var(--shadow) var(--green-dark);
+            color: var(--green-dark);
+        }
+        .option-btn.correct .badge { background: var(--green); color: white; border-color: var(--green); }
+
+        .option-btn.wrong {
+            border-color: var(--red);
+            background: var(--red-light);
+            box-shadow: var(--shadow) #c03434;
+            color: var(--red);
+        }
+        .option-btn.wrong .badge { background: var(--red); color: white; border-color: var(--red); }
+
+        .option-btn:disabled { cursor: default; }
+
+        .option-btn .opt-main {
+            font-weight: 800;
+            font-size: 17px;
+        }
+        .option-btn .opt-sub {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        /* ========================================================
+           BOTTOM BAR
+        ======================================================== */
+        .bottom-area {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: white;
+            border-top: 2px solid var(--gray);
+            padding: 14px 16px;
+            z-index: 50;
+        }
+
+        .feedback-msg {
+            display: none;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 12px;
+            padding: 4px 0;
+        }
+        .feedback-msg.visible { display: flex; }
+        .feedback-msg.correct-msg { color: var(--green-dark); }
+        .feedback-msg.wrong-msg { color: var(--red); }
+
+        .feedback-icon {
+            font-size: 36px;
+            flex-shrink: 0;
+        }
+        .feedback-text { flex: 1; }
+        .feedback-title { font-size: 18px; font-weight: 900; }
+        .feedback-answer { font-size: 14px; font-weight: 700; margin-top: 2px; color: var(--text); }
+        .feedback-answer .jp-ans { font-weight: 900; }
+
+        .action-row {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-check, .btn-continue, .btn-skip {
+            height: 52px;
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 900;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.1s, box-shadow 0.1s, filter 0.1s;
+            letter-spacing: 0.04em;
+        }
+        .btn-check {
+            flex: 1;
+            background: var(--green);
+            color: white;
+            box-shadow: var(--shadow) var(--green-dark);
+        }
+        .btn-check:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--green-dark); }
+        .btn-check:disabled { background: var(--gray); color: var(--gray-dark); box-shadow: var(--shadow) #ccc; cursor: default; }
+
+        .btn-continue {
+            flex: 1;
+            background: var(--green);
+            color: white;
+            box-shadow: var(--shadow) var(--green-dark);
+        }
+        .btn-continue.red {
+            background: var(--red);
+            box-shadow: var(--shadow) #c03434;
+        }
+        .btn-continue:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--green-dark); }
+        .btn-continue.red:active { box-shadow: 0 1px 0 #c03434; }
+
+        .btn-skip {
+            padding: 0 18px;
+            background: transparent;
+            color: var(--gray-dark);
+            border: 2px solid var(--gray);
+        }
+        .btn-skip:active { background: var(--gray); }
+
+        /* ========================================================
+           COMPLETE SCREEN
+        ======================================================== */
+        #complete-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            padding: 40px 20px;
+            text-align: center;
+            gap: 20px;
+            max-width: 480px;
+            margin: 0 auto;
+            width: 100%;
+            min-height: 100vh;
+        }
+        #complete-screen.show { display: flex; }
+
+        .trophy { font-size: 90px; animation: bounce 0.6s ease; }
+        @keyframes bounce {
+            0% { transform: scale(0); opacity: 0; }
+            70% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .complete-title {
+            font-size: 30px;
+            font-weight: 900;
+            color: var(--green-dark);
+        }
+        .complete-sub {
+            font-size: 15px;
+            color: var(--text-light);
+            font-weight: 700;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+        }
+        .stat-card {
+            background: white;
+            border: 2px solid var(--gray);
+            border-radius: 14px;
+            padding: 14px 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .stat-icon { font-size: 28px; }
+        .stat-value { font-size: 22px; font-weight: 900; color: var(--text); }
+        .stat-label { font-size: 11px; font-weight: 800; color: var(--text-light); }
+
+        .complete-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+        .btn-restart, .btn-home {
+            border: none;
+            border-radius: 14px;
+            height: 54px;
+            width: 100%;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 900;
+            cursor: pointer;
+            letter-spacing: 0.04em;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        .btn-restart {
+            background: var(--green);
+            color: white;
+            box-shadow: var(--shadow) var(--green-dark);
+        }
+        .btn-restart:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--green-dark); }
+        .btn-home {
+            background: white;
+            color: var(--text);
+            border: 2px solid var(--gray);
+            box-shadow: var(--shadow) #e0e0e0;
+        }
+        .btn-home:active { transform: translateY(3px); box-shadow: 0 1px 0 #e0e0e0; }
+
+        /* ========================================================
+           POPUPS / EFFECTS
+        ======================================================== */
+        .xp-popup {
+            position: fixed;
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--yellow-dark);
+            pointer-events: none;
+            z-index: 999;
+            animation: floatUp 1s ease forwards;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-60px); }
+        }
+
+        .streak-flash {
             display: none;
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            color: #ccc;
-            padding: 20px;
-            font-family: monospace;
-            z-index: 9999;
+            inset: 0;
+            background: rgba(88,204,2,0.15);
+            pointer-events: none;
+            z-index: 100;
+        }
+        @keyframes flashGreen {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        @keyframes shakeHeart {
+            0%,100% { transform: translateX(0); }
+            20% { transform: translateX(-5px); }
+            60% { transform: translateX(5px); }
+        }
+        .heart-emoji.shake { animation: shakeHeart 0.4s ease; }
+
+        /* ========================================================
+           FOOTER
+        ======================================================== */
+        .home-footer {
+            text-align: center;
             font-size: 12px;
-            white-space: pre;
+            color: var(--gray-dark);
+            font-weight: 700;
+            padding: 16px 0 8px;
         }
     </style>
 </head>
 <body>
 
-    <div class="layout" id="main-layout">
-        <div class="sidebar">
-            <div style="margin-bottom: 20px; font-size: 20px;">📄</div>
-            <div style="margin-bottom: 20px; font-size: 20px;">🔍</div>
-            <div style="margin-bottom: 20px; font-size: 20px;">🐙</div>
+<!-- ============================================================
+     HOME SCREEN
+============================================================ -->
+<div id="home-screen">
+    <div class="home-header">
+        <div>
+            <div class="home-title">旅遊<span class="accent">日語</span> N5</div>
+            <div class="home-subtitle">為旅行而學・每天一點點</div>
         </div>
-        
-        <div class="file-explorer">
-            <div style="padding: 10px; font-size: 11px; font-weight: bold; color: #bbb;">EXPLORER</div>
-            <div style="padding: 5px 20px; color: #ccc;">▼ PROJECT-N5</div>
-            <div style="padding: 2px 30px; color: #4ec9b0;">TS vocabulary.ts</div>
-            <div style="padding: 2px 30px; color: #d4d4d4;"># readme.md</div>
-            <div style="padding: 2px 30px; color: #d4d4d4;">{} package.json</div>
+        <div class="stats-row">
+            <div class="stat-pill streak"><span class="icon">🔥</span><span id="streak-num">0</span></div>
+            <div class="stat-pill xp"><span class="icon">⭐</span><span id="total-xp">0</span></div>
         </div>
+    </div>
 
-        <div class="editor">
-            <div class="tabs">
-                <div class="tab">
-                    <span style="color:#4ec9b0; margin-right:5px;">TS</span> vocabulary.ts <span style="margin-left:10px; font-size:16px;">×</span>
-                </div>
-                <div class="tab inactive">grammar.spec.ts</div>
+    <div class="info-banner">
+        <div class="ico">🗾</div>
+        <div>
+            <div class="txt-title">準備去日本玩了嗎？</div>
+            <div class="txt-sub">用最常見的單字 + 文法 + 短句，輕鬆應付旅遊現場！</div>
+        </div>
+    </div>
+
+    <div class="section-title">🧳 旅遊主題單字</div>
+    <div class="category-grid" id="travel-grid"></div>
+
+    <div class="section-title">📖 文法練習</div>
+    <div class="category-grid" id="grammar-grid"></div>
+
+    <div class="section-title">💬 旅遊實用短句</div>
+    <div class="category-grid" id="phrase-grid"></div>
+
+    <div class="section-title">🌸 N5 基礎單字</div>
+    <div class="category-grid" id="basic-grid"></div>
+
+    <div class="home-footer">N5 ・ 為旅遊打造的學習工具 ・ 點選分類開始學習</div>
+</div>
+
+<!-- ============================================================
+     QUIZ SCREEN
+============================================================ -->
+<div id="quiz-screen">
+    <div class="topbar">
+        <div class="close-btn" onclick="goHome()">✕</div>
+        <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+        </div>
+        <div class="hearts">
+            <span class="heart-emoji" id="heart-emoji">❤️</span>
+            <span class="heart-num" id="hearts-num">5</span>
+        </div>
+    </div>
+
+    <div class="quiz-main" id="quiz-area">
+        <div class="type-label" id="type-label"></div>
+        <div class="instruction" id="instruction"></div>
+        <div class="question-card" id="question-card"></div>
+        <div class="options" id="options"></div>
+    </div>
+
+    <div class="bottom-area" id="bottom-area">
+        <div class="feedback-msg" id="feedback-msg">
+            <span class="feedback-icon" id="feedback-icon"></span>
+            <div class="feedback-text">
+                <div class="feedback-title" id="feedback-title"></div>
+                <div class="feedback-answer" id="feedback-answer"></div>
             </div>
-
-            <div class="code-area" id="code-container">
-                </div>
+        </div>
+        <div class="action-row" id="action-row">
+            <button class="btn-skip" onclick="skipQuestion()">跳過</button>
+            <button class="btn-check" id="btn-check" disabled onclick="checkAnswer()">確認</button>
         </div>
     </div>
+</div>
 
-    <div class="status-bar">
-        <div style="display:flex; gap:15px;">
-            <span>main*</span>
-            <span>0 errors, 0 warnings</span>
+<!-- ============================================================
+     COMPLETE SCREEN
+============================================================ -->
+<div id="complete-screen">
+    <div class="trophy">🏆</div>
+    <div class="complete-title" id="complete-title">太厲害了！</div>
+    <div class="complete-sub" id="complete-sub">你完成了一回合練習</div>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-icon">⭐</span>
+            <span class="stat-value" id="final-xp">0</span>
+            <span class="stat-label">獲得 XP</span>
         </div>
-        <div style="display:flex; gap:15px;">
-            <span id="progress-indicator">Ln 12, Col 45</span>
-            <span>UTF-8</span>
-            <span>TypeScript</span>
-            <span>Prettier</span>
+        <div class="stat-card">
+            <span class="stat-icon">🎯</span>
+            <span class="stat-value" id="final-accuracy">0%</span>
+            <span class="stat-label">正確率</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon">❤️</span>
+            <span class="stat-value" id="final-hearts">0</span>
+            <span class="stat-label">剩餘生命</span>
         </div>
     </div>
-
-    <div id="boss-screen">
-C:\Users\Admin> npm run dev
-> n5-app@0.0.0 dev
-> vite
-
-  VITE v4.3.9  ready in 420 ms
-  ➜  Local:   http://localhost:5173/
-[INFO] [14:02:23] GET /src/main.ts 200 - 15ms
-...
+    <div class="complete-actions">
+        <button class="btn-restart" onclick="restartCurrent()">再練一次 🔄</button>
+        <button class="btn-home" onclick="goHome()">回主頁</button>
     </div>
+</div>
 
-    <script>
-        // ==========================================
-        // 完整資料庫 (V3.2)
-        // ==========================================
-        const db = [
-            // --- 1. 代名詞 & 人物 ---
-            {t:'n', k:'私', r:'わたし', a:['I','我'], h:'我'},
-            {t:'n', k:'あなた', r:'あなた', a:['you','你'], h:'你'},
-            {t:'n', k:'先生', r:'せんせい', a:['teacher','老師'], h:'老師/醫生'},
-            {t:'n', k:'学生', r:'がくせい', a:['student','學生'], h:'學生'},
-            {t:'n', k:'会社員', r:'かいしゃいん', a:['employee','公司職員','上班族'], h:'公司職員'},
-            {t:'n', k:'人', r:'ひと', a:['person','人'], h:'人'},
-            {t:'n', k:'子供', r:'こども', a:['child','小孩'], h:'小孩'},
-            {t:'n', k:'誰', r:'だれ', a:['who','誰'], h:'誰'},
+<div class="streak-flash" id="streak-flash"></div>
 
-            // --- 2. 家族 ---
-            {t:'n', k:'父', r:'ちち', a:['father','dad','爸爸','家父'], h:'(我的)父親'},
-            {t:'n', k:'母', r:'はは', a:['mother','mom','媽媽','家母'], h:'(我的)母親'},
-            {t:'n', k:'兄', r:'あに', a:['older brother','哥哥'], h:'(我的)哥哥'},
-            {t:'n', k:'姉', r:'あね', a:['older sister','姊姊'], h:'(我的)姊姊'},
-            {t:'n', k:'弟', r:'おとうと', a:['younger brother','弟弟'], h:'(我的)弟弟'},
-            {t:'n', k:'妹', r:'いもうと', a:['younger sister','妹妹'], h:'(我的)妹妹'},
-            {t:'n', k:'お父さん', r:'おとうさん', a:['father','爸爸'], h:'(別人的)父親'},
-            {t:'n', k:'お母さん', r:'おかあさん', a:['mother','媽媽'], h:'(別人的)母親'},
+<script>
+// ============================================================
+// DATA  (N5 為旅遊打造的內容)
+// ============================================================
 
-            // --- 3. 時間 ---
-            {t:'n', k:'今', r:'いま', a:['now','現在'], h:'現在'},
-            {t:'n', k:'今日', r:'きょう', a:['today','今天'], h:'今天'},
-            {t:'n', k:'昨日', r:'きのう', a:['yesterday','昨天'], h:'昨天'},
-            {t:'n', k:'明日', r:'あした', a:['tomorrow','明天'], h:'明天'},
-            {t:'n', k:'朝', r:'あさ', a:['morning','早上'], h:'早上'},
-            {t:'n', k:'昼', r:'ひる', a:['noon','daytime','中午'], h:'中午/白天'},
-            {t:'n', k:'晩', r:'ばん', a:['night','evening','晚上'], h:'晚上'},
-            {t:'n', k:'毎日', r:'まいにち', a:['everyday','每天'], h:'每天'},
-            {t:'n', k:'来週', r:'らいしゅう', a:['next week','下週'], h:'下週'},
-            {t:'n', k:'いつ', r:'いつ', a:['when','何時'], h:'什麼時候'},
+// 旅遊主題單字
+const TRAVEL = {
+    airport: {
+        id: 'airport', icon: '✈️', name: '機場 / 交通', color: 'blue',
+        items: [
+            {k:'空港', r:'くうこう', a:'機場'},
+            {k:'飛行機', r:'ひこうき', a:'飛機'},
+            {k:'駅', r:'えき', a:'車站'},
+            {k:'電車', r:'でんしゃ', a:'電車'},
+            {k:'新幹線', r:'しんかんせん', a:'新幹線'},
+            {k:'地下鉄', r:'ちかてつ', a:'地下鐵'},
+            {k:'バス', r:'バス', a:'公車'},
+            {k:'タクシー', r:'タクシー', a:'計程車'},
+            {k:'切符', r:'きっぷ', a:'車票'},
+            {k:'パスポート', r:'パスポート', a:'護照'},
+            {k:'荷物', r:'にもつ', a:'行李'},
+            {k:'スーツケース', r:'スーツケース', a:'行李箱'},
+            {k:'入口', r:'いりぐち', a:'入口'},
+            {k:'出口', r:'でぐち', a:'出口'},
+            {k:'乗ります', r:'のります', a:'搭乘'},
+            {k:'降ります', r:'おります', a:'下車'},
+        ]
+    },
+    restaurant: {
+        id: 'restaurant', icon: '🍜', name: '餐廳 / 點餐', color: 'orange',
+        items: [
+            {k:'レストラン', r:'レストラン', a:'餐廳'},
+            {k:'メニュー', r:'メニュー', a:'菜單'},
+            {k:'お水', r:'おみず', a:'水'},
+            {k:'お茶', r:'おちゃ', a:'茶'},
+            {k:'コーヒー', r:'コーヒー', a:'咖啡'},
+            {k:'ビール', r:'ビール', a:'啤酒'},
+            {k:'パン', r:'パン', a:'麵包'},
+            {k:'寿司', r:'すし', a:'壽司'},
+            {k:'ラーメン', r:'ラーメン', a:'拉麵'},
+            {k:'お弁当', r:'おべんとう', a:'便當'},
+            {k:'うどん', r:'うどん', a:'烏龍麵'},
+            {k:'卵', r:'たまご', a:'蛋'},
+            {k:'美味しい', r:'おいしい', a:'好吃的'},
+            {k:'辛い', r:'からい', a:'辣的'},
+            {k:'甘い', r:'あまい', a:'甜的'},
+            {k:'お会計', r:'おかいけい', a:'結帳'},
+            {k:'注文', r:'ちゅうもん', a:'點餐'},
+        ]
+    },
+    hotel: {
+        id: 'hotel', icon: '🏨', name: '飯店 / 住宿', color: 'purple',
+        items: [
+            {k:'ホテル', r:'ホテル', a:'飯店'},
+            {k:'部屋', r:'へや', a:'房間'},
+            {k:'鍵', r:'かぎ', a:'鑰匙'},
+            {k:'予約', r:'よやく', a:'預約'},
+            {k:'チェックイン', r:'チェックイン', a:'登記入住'},
+            {k:'チェックアウト', r:'チェックアウト', a:'退房'},
+            {k:'朝ご飯', r:'あさごはん', a:'早餐'},
+            {k:'お風呂', r:'おふろ', a:'澡堂/浴室'},
+            {k:'温泉', r:'おんせん', a:'溫泉'},
+            {k:'タオル', r:'タオル', a:'毛巾'},
+            {k:'エレベーター', r:'エレベーター', a:'電梯'},
+            {k:'階', r:'かい', a:'樓層'},
+            {k:'泊まります', r:'とまります', a:'住宿'},
+        ]
+    },
+    shopping: {
+        id: 'shopping', icon: '🛍️', name: '購物 / 金錢', color: 'pink',
+        items: [
+            {k:'店', r:'みせ', a:'店'},
+            {k:'コンビニ', r:'コンビニ', a:'便利商店'},
+            {k:'デパート', r:'デパート', a:'百貨公司'},
+            {k:'お土産', r:'おみやげ', a:'伴手禮'},
+            {k:'値段', r:'ねだん', a:'價錢'},
+            {k:'いくら', r:'いくら', a:'多少錢'},
+            {k:'高い', r:'たかい', a:'貴 / 高'},
+            {k:'安い', r:'やすい', a:'便宜'},
+            {k:'カード', r:'カード', a:'信用卡'},
+            {k:'現金', r:'げんきん', a:'現金'},
+            {k:'お金', r:'おかね', a:'錢'},
+            {k:'円', r:'えん', a:'日圓'},
+            {k:'袋', r:'ふくろ', a:'袋子'},
+            {k:'レシート', r:'レシート', a:'收據'},
+            {k:'買います', r:'かいます', a:'買'},
+        ]
+    },
+    direction: {
+        id: 'direction', icon: '🧭', name: '問路 / 方向', color: 'green',
+        items: [
+            {k:'右', r:'みぎ', a:'右'},
+            {k:'左', r:'ひだり', a:'左'},
+            {k:'前', r:'まえ', a:'前面'},
+            {k:'後ろ', r:'うしろ', a:'後面'},
+            {k:'上', r:'うえ', a:'上面'},
+            {k:'下', r:'した', a:'下面'},
+            {k:'近い', r:'ちかい', a:'近的'},
+            {k:'遠い', r:'とおい', a:'遠的'},
+            {k:'真っ直ぐ', r:'まっすぐ', a:'直走'},
+            {k:'信号', r:'しんごう', a:'紅綠燈'},
+            {k:'交差点', r:'こうさてん', a:'十字路口'},
+            {k:'地図', r:'ちず', a:'地圖'},
+            {k:'道', r:'みち', a:'路'},
+            {k:'曲がります', r:'まがります', a:'轉彎'},
+            {k:'歩きます', r:'あるきます', a:'走路'},
+        ]
+    },
+    emergency: {
+        id: 'emergency', icon: '🆘', name: '緊急狀況', color: 'red',
+        items: [
+            {k:'助けて', r:'たすけて', a:'救命!'},
+            {k:'警察', r:'けいさつ', a:'警察'},
+            {k:'病院', r:'びょういん', a:'醫院'},
+            {k:'薬', r:'くすり', a:'藥'},
+            {k:'痛い', r:'いたい', a:'痛'},
+            {k:'熱', r:'ねつ', a:'發燒'},
+            {k:'頭', r:'あたま', a:'頭'},
+            {k:'お腹', r:'おなか', a:'肚子'},
+            {k:'大丈夫', r:'だいじょうぶ', a:'沒事 / 沒問題'},
+            {k:'救急車', r:'きゅうきゅうしゃ', a:'救護車'},
+            {k:'財布', r:'さいふ', a:'錢包'},
+            {k:'忘れ物', r:'わすれもの', a:'遺失物'},
+            {k:'迷子', r:'まいご', a:'迷路'},
+            {k:'危ない', r:'あぶない', a:'危險'},
+        ]
+    },
+    time: {
+        id: 'time', icon: '⏰', name: '時間 / 數字', color: 'yellow',
+        items: [
+            {k:'一', r:'いち', a:'1'},
+            {k:'二', r:'に', a:'2'},
+            {k:'三', r:'さん', a:'3'},
+            {k:'四', r:'よん', a:'4'},
+            {k:'五', r:'ご', a:'5'},
+            {k:'六', r:'ろく', a:'6'},
+            {k:'七', r:'なな', a:'7'},
+            {k:'八', r:'はち', a:'8'},
+            {k:'九', r:'きゅう', a:'9'},
+            {k:'十', r:'じゅう', a:'10'},
+            {k:'百', r:'ひゃく', a:'100'},
+            {k:'千', r:'せん', a:'1000'},
+            {k:'万', r:'まん', a:'10000'},
+            {k:'今', r:'いま', a:'現在'},
+            {k:'今日', r:'きょう', a:'今天'},
+            {k:'明日', r:'あした', a:'明天'},
+            {k:'昨日', r:'きのう', a:'昨天'},
+            {k:'何時', r:'なんじ', a:'幾點'},
+            {k:'分', r:'ふん', a:'分鐘'},
+        ]
+    },
+    greeting: {
+        id: 'greeting', icon: '👋', name: '寒暄 / 打招呼', color: 'blue',
+        items: [
+            {k:'おはよう', r:'おはよう', a:'早安'},
+            {k:'こんにちは', r:'こんにちは', a:'你好 / 午安'},
+            {k:'こんばんは', r:'こんばんは', a:'晚安(問候)'},
+            {k:'おやすみ', r:'おやすみ', a:'晚安(睡前)'},
+            {k:'ありがとう', r:'ありがとう', a:'謝謝'},
+            {k:'すみません', r:'すみません', a:'不好意思 / 抱歉'},
+            {k:'ごめんなさい', r:'ごめんなさい', a:'對不起'},
+            {k:'はい', r:'はい', a:'是 / 好的'},
+            {k:'いいえ', r:'いいえ', a:'不是 / 不'},
+            {k:'はじめまして', r:'はじめまして', a:'初次見面'},
+            {k:'よろしく', r:'よろしく', a:'請多指教'},
+            {k:'さようなら', r:'さようなら', a:'再見'},
+            {k:'いただきます', r:'いただきます', a:'我開動了'},
+            {k:'ごちそうさま', r:'ごちそうさま', a:'謝謝招待'},
+        ]
+    },
+};
 
-            // --- 4. 場所 ---
-            {t:'n', k:'学校', r:'がっこう', a:['school','學校'], h:'學校'},
-            {t:'n', k:'教室', r:'きょうしつ', a:['classroom','教室'], h:'教室'},
-            {t:'n', k:'食堂', r:'しょくどう', a:['canteen','食堂'], h:'食堂'},
-            {t:'n', k:'トイレ', r:'トイレ', a:['toilet','廁所'], h:'廁所'},
-            {t:'n', k:'病院', r:'びょういん', a:['hospital','醫院'], h:'醫院'},
-            {t:'n', k:'銀行', r:'ぎんこう', a:['bank','銀行'], h:'銀行'},
-            {t:'n', k:'図書館', r:'としょかん', a:['library','圖書館'], h:'圖書館'},
-            {t:'n', k:'上', r:'うえ', a:['up','above','上'], h:'上面'},
-            {t:'n', k:'下', r:'した', a:['down','below','下'], h:'下面'},
-            {t:'n', k:'中', r:'なか', a:['inside','中'], h:'裡面'},
-            {t:'n', k:'外', r:'そと', a:['outside','外'], h:'外面'},
+// 文法 - 助詞 (旅遊現場最常用)
+const GRAMMAR_PARTICLES = {
+    id: 'particles', icon: '🔤', name: '助詞填空', color: 'purple',
+    items: [
+        {pre:'私', ans:'は', post:'学生です。', desc:'我是學生 (主題)', r:'わたし___がくせいです。'},
+        {pre:'これ', ans:'は', post:'本ですか。', desc:'這是書嗎？(主題)', r:'これ___ほんですか。'},
+        {pre:'トイレ', ans:'は', post:'どこですか。', desc:'廁所在哪裡？(問位置)', r:'トイレ___どこですか。'},
+        {pre:'ご飯', ans:'を', post:'食べます。', desc:'吃飯 (受詞)', r:'ごはん___たべます。'},
+        {pre:'本', ans:'を', post:'読みます。', desc:'讀書 (受詞)', r:'ほん___よみます。'},
+        {pre:'コーヒー', ans:'を', post:'飲みます。', desc:'喝咖啡 (受詞)', r:'コーヒー___のみます。'},
+        {pre:'7時', ans:'に', post:'起きます。', desc:'七點起床 (時間點)', r:'しちじ___おきます。'},
+        {pre:'駅', ans:'に', post:'行きます。', desc:'去車站 (目的地)', r:'えき___いきます。'},
+        {pre:'机の上', ans:'に', post:'猫がいます。', desc:'桌子上有貓 (存在地點)', r:'つくえのうえ___ねこがいます。'},
+        {pre:'学校', ans:'へ', post:'行きます。', desc:'去學校 (方向)', r:'がっこう___いきます。'},
+        {pre:'バス', ans:'で', post:'来ます。', desc:'搭公車來 (交通工具)', r:'バス___きます。'},
+        {pre:'日本語', ans:'で', post:'話します。', desc:'用日文說 (語言/手段)', r:'にほんご___はなします。'},
+        {pre:'レストラン', ans:'で', post:'食べます。', desc:'在餐廳吃 (動作場所)', r:'レストラン___たべます。'},
+        {pre:'東京', ans:'から', post:'大阪まで。', desc:'從東京到大阪', r:'とうきょう___おおさかまで。'},
+        {pre:'9時', ans:'から', post:'5時まで働きます。', desc:'從九點到五點工作', r:'くじ___ごじまではたらきます。'},
+        {pre:'田中さん', ans:'が', post:'います。', desc:'田中先生在 (存在主詞)', r:'たなかさん___います。'},
+        {pre:'お茶', ans:'が', post:'好きです。', desc:'喜歡茶 (好惡對象)', r:'おちゃ___すきです。'},
+        {pre:'パンとお茶', ans:'を', post:'ください。', desc:'請給我麵包和茶', r:'パンとおちゃ___ください。'},
+        {pre:'これ', ans:'と', post:'それをください。', desc:'請給我這個和那個 (列舉)', r:'これ___それをください。'},
+        {pre:'母', ans:'と', post:'旅行します。', desc:'和媽媽去旅行 (對象)', r:'はは___りょこうします。'},
+        {pre:'タクシー', ans:'で', post:'ホテルへ行きます。', desc:'搭計程車去飯店', r:'タクシー___ホテルへいきます。'},
+    ]
+};
 
-            // --- 5. 食物/物品 ---
-            {t:'n', k:'ご飯', r:'ごはん', a:['rice','meal','飯'], h:'飯/餐'},
-            {t:'n', k:'肉', r:'にく', a:['meat','肉'], h:'肉'},
-            {t:'n', k:'魚', r:'さかな', a:['fish','魚'], h:'魚'},
-            {t:'n', k:'水', r:'みず', a:['water','水'], h:'水'},
-            {t:'n', k:'本', r:'ほん', a:['book','書'], h:'書'},
-            {t:'n', k:'車', r:'くるま', a:['car','車'], h:'車'},
-            {t:'n', k:'手紙', r:'てがみ', a:['letter','信'], h:'信'},
+// 文法 - 句型 (N5 重點)
+const GRAMMAR_PATTERNS = {
+    id: 'patterns', icon: '📝', name: '句型選擇', color: 'green',
+    items: [
+        {q:'「想吃壽司」怎麼說？', a:'寿司を食べたいです。', r:'すしをたべたいです。', distractors:['寿司を食べてください。','寿司を食べません。','寿司を食べました。']},
+        {q:'「請給我水」怎麼說？', a:'お水をください。', r:'おみずをください。', distractors:['お水を飲みます。','お水がほしいです。','お水でいいです。']},
+        {q:'「我不去」怎麼說？', a:'行きません。', r:'いきません。', distractors:['行きました。','行きたいです。','行ってください。']},
+        {q:'「請等一下」怎麼說？', a:'ちょっと待ってください。', r:'ちょっとまってください。', distractors:['ちょっと待ちません。','ちょっと待ちました。','ちょっと待ちたいです。']},
+        {q:'「我可以拍照嗎？」怎麼說？', a:'写真を撮ってもいいですか。', r:'しゃしんをとってもいいですか。', distractors:['写真を撮ります。','写真を撮りました。','写真を撮りたいです。']},
+        {q:'「一起去吧!」怎麼說？', a:'一緒に行きましょう。', r:'いっしょにいきましょう。', distractors:['一緒に行きました。','一緒に行きません。','一緒に行きたいです。']},
+        {q:'「下個月去日本」怎麼說？', a:'来月日本へ行きます。', r:'らいげつにほんへいきます。', distractors:['先月日本へ行きました。','今月日本にいます。','来年日本に住みます。']},
+        {q:'「這個多少錢？」怎麼說？', a:'これはいくらですか。', r:'これはいくらですか。', distractors:['これは何ですか。','これはどこですか。','これはいつですか。']},
+        {q:'「車站在哪裡？」怎麼說？', a:'駅はどこですか。', r:'えきはどこですか。', distractors:['駅は何ですか。','駅はいつですか。','駅は誰ですか。']},
+        {q:'「不好意思 / 借過」怎麼說？', a:'すみません。', r:'すみません。', distractors:['ありがとう。','こんにちは。','さようなら。']},
+        {q:'「現在幾點？」怎麼說？', a:'今、何時ですか。', r:'いま、なんじですか。', distractors:['今、何ですか。','今、どこですか。','今、誰ですか。']},
+        {q:'「我喜歡日本料理」怎麼說？', a:'日本料理が好きです。', r:'にほんりょうりがすきです。', distractors:['日本料理を食べます。','日本料理は美味しいです。','日本料理がほしいです。']},
+        {q:'「會講中文嗎？」怎麼說？', a:'中国語が分かりますか。', r:'ちゅうごくごがわかりますか。', distractors:['中国語を話します。','中国語が好きです。','中国語を勉強します。']},
+        {q:'「天氣很好」怎麼說？', a:'天気がいいです。', r:'てんきがいいです。', distractors:['天気は雨です。','天気が悪いです。','天気が暑いです。']},
+        {q:'「請再說一次」怎麼說？', a:'もう一度言ってください。', r:'もういちどいってください。', distractors:['もう一度聞いてください。','もう一度書いてください。','もう一度読んでください。']},
+        {q:'「我聽不懂」怎麼說？', a:'分かりません。', r:'わかりません。', distractors:['分かります。','分かりました。','分かりたいです。']},
+    ]
+};
 
-            // --- 6. 動詞 ---
-            {t:'v', k:'起きます', r:'おきます', a:['wake up','起床'], h:'起床'},
-            {t:'v', k:'寝ます', r:'ねます', a:['sleep','睡覺'], h:'睡覺'},
-            {t:'v', k:'働きます', r:'はたらきます', a:['work','工作'], h:'工作'},
-            {t:'v', k:'行きます', r:'いきます', a:['go','去'], h:'去'},
-            {t:'v', k:'来ます', r:'きます', a:['come','來'], h:'來'},
-            {t:'v', k:'帰ります', r:'かえります', a:['return','回家'], h:'回家'},
-            {t:'v', k:'食べます', r:'たべます', a:['eat','吃'], h:'吃'},
-            {t:'v', k:'飲みます', r:'のみます', a:['drink','喝'], h:'喝'},
-            {t:'v', k:'買います', r:'かいます', a:['buy','買'], h:'買'},
-            {t:'v', k:'見ます', r:'みます', a:['watch','看'], h:'看'},
-            {t:'v', k:'聞きます', r:'ききます', a:['listen','hear','聽','問'], h:'聽/問'},
-            {t:'v', k:'読みます', r:'よみます', a:['read','讀'], h:'閱讀'},
-            {t:'v', k:'書きます', r:'かきます', a:['write','寫'], h:'寫'},
-            {t:'v', k:'分かります', r:'わかります', a:['understand','懂'], h:'懂了'},
-            {t:'v', k:'あります', r:'あります', a:['have','exists','有','在'], h:'有/在 (無生命)'},
-            {t:'v', k:'います', r:'います', a:['have','exists','有','在'], h:'有/在 (有生命)'},
+// 文法 - 形容詞變化 (旅遊基本)
+const GRAMMAR_ADJ = {
+    id: 'adjectives', icon: '🎨', name: '形容詞變化', color: 'orange',
+    items: [
+        {q:'大きい (大的) → 不是大的', a:'大きくない', r:'おおきくない', distractors:['大きいない','大きじゃない','大きくないです']},
+        {q:'小さい (小的) → 過去式 (是小的)', a:'小さかった', r:'ちいさかった', distractors:['小さいでした','小さくなった','小さくありません']},
+        {q:'美味しい (好吃) → 不好吃', a:'美味しくない', r:'おいしくない', distractors:['美味しいない','美味しじゃない','美味しいではない']},
+        {q:'好き (喜歡) → 不喜歡', a:'好きじゃない', r:'すきじゃない', distractors:['好きくない','好きない','好きでない']},
+        {q:'静か (安靜) → 是安靜的 (です形)', a:'静かです', r:'しずかです', distractors:['静かいです','静くです','静かでした']},
+        {q:'いい (好的) → 不好的', a:'よくない', r:'よくない', distractors:['いくない','いいない','いいじゃない']},
+        {q:'高い (貴) → 過去式 (很貴)', a:'高かった', r:'たかかった', distractors:['高いでした','高くなった','高でした']},
+        {q:'綺麗 (漂亮) → 漂亮的~ + 名詞', a:'綺麗な', r:'きれいな', distractors:['綺麗い','綺麗の','綺麗で']},
+        {q:'大きい + 名詞', a:'大きい', r:'おおきい', distractors:['大きな','大きの','大きで']},
+        {q:'寒い (冷的) → 不冷', a:'寒くない', r:'さむくない', distractors:['寒いない','寒じゃない','寒でない']},
+    ]
+};
 
-            // --- 7. 形容詞/副詞 ---
-            {t:'adj', k:'大きい', r:'おおきい', a:['big','大'], h:'大的'},
-            {t:'adj', k:'小さい', r:'ちいさい', a:['small','小'], h:'小的'},
-            {t:'adj', k:'新しい', r:'あたらしい', a:['new','新'], h:'新的'},
-            {t:'adj', k:'古い', r:'ふるい', a:['old','舊'], h:'舊的'},
-            {t:'adj', k:'いい', r:'いい', a:['good','好'], h:'好的'},
-            {t:'adj', k:'暑い', r:'あつい', a:['hot','熱'], h:'熱的'},
-            {t:'adj', k:'寒い', r:'さむい', a:['cold','冷'], h:'冷的'},
-            {t:'adj', k:'おいしい', r:'おいしい', a:['delicious','好吃'], h:'好吃的'},
-            {t:'adj', k:'楽しい', r:'たのしい', a:['fun','快樂'], h:'愉快的'},
-            {t:'adj', k:'綺麗', r:'きれい', a:['beautiful','clean','漂亮','乾淨'], h:'漂亮的'},
-            {t:'adj', k:'静か', r:'しずか', a:['quiet','安靜'], h:'安靜的'},
-            {t:'adj', k:'好き', r:'すき', a:['like','喜歡'], h:'喜歡的'},
-            {t:'adv', k:'とても', r:'とても', a:['very','非常'], h:'非常'},
-            {t:'adv', k:'あまり', r:'あまり', a:['not very','不太'], h:'不太 (接否定)'},
+// 旅遊實用短句
+const PHRASES_TRAVEL = {
+    id: 'phrases-travel', icon: '🧳', name: '旅遊實用短句', color: 'blue',
+    items: [
+        {jp:'すみません、駅はどこですか。', r:'すみません、えきはどこですか。', zh:'不好意思，車站在哪裡？'},
+        {jp:'これをください。', r:'これをください。', zh:'請給我這個。'},
+        {jp:'いくらですか。', r:'いくらですか。', zh:'多少錢？'},
+        {jp:'メニューをお願いします。', r:'メニューをおねがいします。', zh:'請給我菜單。'},
+        {jp:'お会計お願いします。', r:'おかいけいおねがいします。', zh:'請結帳。'},
+        {jp:'カードで払えますか。', r:'カードではらえますか。', zh:'可以刷卡嗎？'},
+        {jp:'写真を撮ってもいいですか。', r:'しゃしんをとってもいいですか。', zh:'可以拍照嗎？'},
+        {jp:'もう一度お願いします。', r:'もういちどおねがいします。', zh:'請再說一次。'},
+        {jp:'日本語が分かりません。', r:'にほんごがわかりません。', zh:'我不懂日文。'},
+        {jp:'英語が話せますか。', r:'えいごがはなせますか。', zh:'你會說英文嗎？'},
+        {jp:'ちょっと待ってください。', r:'ちょっとまってください。', zh:'請等一下。'},
+        {jp:'トイレはどこですか。', r:'トイレはどこですか。', zh:'廁所在哪裡？'},
+        {jp:'チェックインお願いします。', r:'チェックインおねがいします。', zh:'我要登記入住。'},
+        {jp:'美味しかったです。', r:'おいしかったです。', zh:'(剛剛)很好吃。'},
+        {jp:'ありがとうございました。', r:'ありがとうございました。', zh:'非常感謝(剛才)。'},
+        {jp:'駅まで行きたいです。', r:'えきまでいきたいです。', zh:'我想去車站。'},
+        {jp:'これは何ですか。', r:'これはなんですか。', zh:'這是什麼？'},
+        {jp:'おすすめは何ですか。', r:'おすすめはなんですか。', zh:'推薦的是什麼？'},
+        {jp:'袋をください。', r:'ふくろをください。', zh:'請給我袋子。'},
+        {jp:'道に迷いました。', r:'みちにまよいました。', zh:'我迷路了。'},
+    ]
+};
 
-            // --- 8. 文法句型 ---
-            {mode:'g', pre:'私', post:'学生です。', a:['は','wa'], desc:'我是學生 (主題標記)', r:'わたし...がくせい'},
-            {mode:'g', pre:'これ', post:'本ですか。', a:['は','wa'], desc:'這是書嗎？', r:'これ...ほん'},
-            {mode:'g', pre:'トイレ', post:'どこですか。', a:['は','wa'], desc:'廁所在哪裡？', r:'トイレ...どこ'},
-            {mode:'g', pre:'3時', post:'寝ます。', a:['に','ni'], desc:'三點睡覺 (時間點)', r:'さんじ...ねます'},
-            {mode:'g', pre:'学校', post:'行きます。', a:['へ','に','e','ni'], desc:'去學校 (移動方向)', r:'がっこう...いきます'},
-            {mode:'g', pre:'バス', post:'来ました。', a:['で','de'], desc:'搭公車來的 (交通手段)', r:'バス...きました'},
-            {mode:'g', pre:'日本語', post:'話します。', a:['で','de'], desc:'用日文說話 (語言手段)', r:'にほんご...はなします'},
-            {mode:'g', pre:'ご飯', post:'食べます。', a:['を','o','wo'], desc:'吃飯 (受詞)', r:'ごはん...たべます'},
-            {mode:'g', pre:'図書館', post:'勉強します。', a:['で','de'], desc:'在圖書館唸書 (動作場所)', r:'としょかん...べんきょうします'},
-            {mode:'g', pre:'田中さん', post:'います。', a:['が','ga'], desc:'田中先生在 (存在主詞)', r:'たなかさん...います'},
-            {mode:'g', pre:'机の上', post:'猫がいます。', a:['に','ni'], desc:'桌子上...有貓 (存在場所)', r:'つくえのうえ...ねこ'},
-            {mode:'g', pre:'東京', post:'大阪まで。', a:['から','kara'], desc:'"從"東京到大阪', r:'とうきょう...おおさか'},
-            {mode:'g', pre:'明日一緒に', post:'ませんか。', a:['いき','iki'], desc:'明天要不要一起"去"呢？ (行きます的邀請形)', r:'あしたいっしょに...'},
-            {mode:'g', pre:'音楽を', post:'ながら、勉強します。', a:['きき','kiki'], desc:'一邊"聽"音樂，一邊唸書', r:'おんがく...べんきょう'}
-        ];
+// N5 基礎單字 (日常)
+const BASIC_DAILY = {
+    id: 'basic-daily', icon: '🌸', name: '日常名詞', color: 'pink',
+    items: [
+        {k:'家', r:'いえ', a:'家'},
+        {k:'部屋', r:'へや', a:'房間'},
+        {k:'机', r:'つくえ', a:'桌子'},
+        {k:'椅子', r:'いす', a:'椅子'},
+        {k:'ドア', r:'ドア', a:'門'},
+        {k:'窓', r:'まど', a:'窗戶'},
+        {k:'本', r:'ほん', a:'書'},
+        {k:'ペン', r:'ペン', a:'筆'},
+        {k:'紙', r:'かみ', a:'紙'},
+        {k:'時計', r:'とけい', a:'時鐘 / 手錶'},
+        {k:'電話', r:'でんわ', a:'電話'},
+        {k:'傘', r:'かさ', a:'傘'},
+        {k:'靴', r:'くつ', a:'鞋子'},
+        {k:'服', r:'ふく', a:'衣服'},
+        {k:'カバン', r:'カバン', a:'包包'},
+        {k:'天気', r:'てんき', a:'天氣'},
+        {k:'雨', r:'あめ', a:'雨'},
+        {k:'雪', r:'ゆき', a:'雪'},
+        {k:'花', r:'はな', a:'花'},
+        {k:'木', r:'き', a:'樹 / 木'},
+    ]
+};
 
-        // ------------------------------------------
-        // 系統邏輯
-        // ------------------------------------------
-        const codeContainer = document.getElementById('code-container');
-        const progressIndicator = document.getElementById('progress-indicator');
-        const bossScreen = document.getElementById('boss-screen');
-        let currentIdx = 0;
-        let correctCount = 0;
-        let isBossMode = false;
-        
-        // 狀態控制：'input' = 輸入中, 'result' = 顯示結果(等待下一題)
-        let gameState = 'input'; 
+const BASIC_VERBS = {
+    id: 'basic-verbs', icon: '🏃', name: '日常動詞', color: 'green',
+    items: [
+        {k:'起きます', r:'おきます', a:'起床'},
+        {k:'寝ます', r:'ねます', a:'睡覺'},
+        {k:'食べます', r:'たべます', a:'吃'},
+        {k:'飲みます', r:'のみます', a:'喝'},
+        {k:'行きます', r:'いきます', a:'去'},
+        {k:'来ます', r:'きます', a:'來'},
+        {k:'帰ります', r:'かえります', a:'回家'},
+        {k:'見ます', r:'みます', a:'看'},
+        {k:'聞きます', r:'ききます', a:'聽 / 問'},
+        {k:'読みます', r:'よみます', a:'讀'},
+        {k:'書きます', r:'かきます', a:'寫'},
+        {k:'話します', r:'はなします', a:'說話'},
+        {k:'分かります', r:'わかります', a:'懂'},
+        {k:'します', r:'します', a:'做'},
+        {k:'勉強します', r:'べんきょうします', a:'學習'},
+        {k:'遊びます', r:'あそびます', a:'玩'},
+        {k:'休みます', r:'やすみます', a:'休息'},
+    ]
+};
 
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
+const BASIC_ADJ = {
+    id: 'basic-adj', icon: '🎀', name: '日常形容詞', color: 'yellow',
+    items: [
+        {k:'大きい', r:'おおきい', a:'大的'},
+        {k:'小さい', r:'ちいさい', a:'小的'},
+        {k:'新しい', r:'あたらしい', a:'新的'},
+        {k:'古い', r:'ふるい', a:'舊的'},
+        {k:'いい', r:'いい', a:'好的'},
+        {k:'悪い', r:'わるい', a:'壞的'},
+        {k:'暑い', r:'あつい', a:'熱的'},
+        {k:'寒い', r:'さむい', a:'冷的'},
+        {k:'楽しい', r:'たのしい', a:'快樂的'},
+        {k:'忙しい', r:'いそがしい', a:'忙的'},
+        {k:'綺麗', r:'きれい', a:'漂亮的 / 乾淨的'},
+        {k:'静か', r:'しずか', a:'安靜的'},
+        {k:'賑やか', r:'にぎやか', a:'熱鬧的'},
+        {k:'好き', r:'すき', a:'喜歡的'},
+        {k:'有名', r:'ゆうめい', a:'有名的'},
+    ]
+};
+
+// ============================================================
+// CATEGORY REGISTRY
+// ============================================================
+const TRAVEL_CATS = [
+    TRAVEL.airport, TRAVEL.restaurant, TRAVEL.hotel, TRAVEL.shopping,
+    TRAVEL.direction, TRAVEL.emergency, TRAVEL.time, TRAVEL.greeting
+];
+const GRAMMAR_CATS = [GRAMMAR_PARTICLES, GRAMMAR_PATTERNS, GRAMMAR_ADJ];
+const PHRASE_CATS = [PHRASES_TRAVEL];
+const BASIC_CATS = [BASIC_DAILY, BASIC_VERBS, BASIC_ADJ];
+
+const ALL_CATS = [...TRAVEL_CATS, ...GRAMMAR_CATS, ...PHRASE_CATS, ...BASIC_CATS];
+
+// 用來標記類型 (vocab / grammar-particle / grammar-pattern / grammar-adj / phrase)
+function categoryType(cat) {
+    if (cat === GRAMMAR_PARTICLES) return 'grammar-particle';
+    if (cat === GRAMMAR_PATTERNS) return 'grammar-pattern';
+    if (cat === GRAMMAR_ADJ) return 'grammar-adj';
+    if (cat === PHRASES_TRAVEL) return 'phrase';
+    return 'vocab';
+}
+
+// ============================================================
+// STORAGE
+// ============================================================
+const STORAGE_KEY = 'jp-travel-n5-v1';
+function loadProgress() {
+    try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    } catch(e) { return {}; }
+}
+function saveProgress(p) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); } catch(e) {}
+}
+function todayKey() {
+    const d = new Date();
+    return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+}
+function updateStreak(p) {
+    const today = todayKey();
+    if (p.lastDay === today) return p;
+    // 計算昨天
+    const yest = new Date();
+    yest.setDate(yest.getDate() - 1);
+    const yestKey = `${yest.getFullYear()}-${yest.getMonth()+1}-${yest.getDate()}`;
+    if (p.lastDay === yestKey) p.streak = (p.streak || 0) + 1;
+    else p.streak = 1;
+    p.lastDay = today;
+    saveProgress(p);
+    return p;
+}
+
+let progress = loadProgress();
+progress.xp = progress.xp || 0;
+progress.streak = progress.streak || 0;
+progress.catProgress = progress.catProgress || {};
+saveProgress(progress);
+
+// ============================================================
+// HOME RENDERING
+// ============================================================
+function renderHome() {
+    document.getElementById('streak-num').textContent = progress.streak || 0;
+    document.getElementById('total-xp').textContent = progress.xp || 0;
+
+    renderCategoryGrid('travel-grid', TRAVEL_CATS);
+    renderCategoryGrid('grammar-grid', GRAMMAR_CATS);
+    renderCategoryGrid('phrase-grid', PHRASE_CATS);
+    renderCategoryGrid('basic-grid', BASIC_CATS);
+}
+
+function renderCategoryGrid(id, cats) {
+    const el = document.getElementById(id);
+    el.innerHTML = '';
+    cats.forEach(cat => {
+        const card = document.createElement('div');
+        card.className = 'cat-card';
+        card.dataset.color = cat.color;
+        const cp = progress.catProgress[cat.id] || {best: 0, played: 0};
+        const pct = cp.best ? Math.min(100, cp.best) : 0;
+        card.innerHTML = `
+            <div class="cat-icon">${cat.icon}</div>
+            <div class="cat-name">${cat.name}</div>
+            <div class="cat-count">${cat.items.length} 個 ・ 練習 ${cp.played} 次</div>
+            <div class="cat-progress"><div class="cat-progress-fill" style="width:${pct}%"></div></div>
+        `;
+        card.onclick = () => startQuiz(cat);
+        el.appendChild(card);
+    });
+}
+
+// ============================================================
+// QUIZ ENGINE
+// ============================================================
+const TOTAL_QUESTIONS = 12;
+const MAX_HEARTS = 5;
+const XP_PER_CORRECT = 10;
+
+let currentCat = null;
+let currentType = null;
+let queue = [];
+let currentQ = null;
+let selectedOption = null;
+let hearts = MAX_HEARTS;
+let xp = 0;
+let answered = 0;
+let correctCount = 0;
+let state = 'waiting';
+let questionsDone = 0;
+
+function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+function startQuiz(cat) {
+    currentCat = cat;
+    currentType = categoryType(cat);
+    const total = Math.min(TOTAL_QUESTIONS, cat.items.length);
+    queue = shuffle(cat.items).slice(0, total);
+    document.documentElement.style.setProperty('--question-total', total);
+    window._totalQ = total;
+    hearts = MAX_HEARTS;
+    xp = 0;
+    answered = 0;
+    correctCount = 0;
+    questionsDone = 0;
+    selectedOption = null;
+    state = 'waiting';
+
+    document.getElementById('home-screen').classList.add('hidden');
+    document.getElementById('quiz-screen').classList.add('show');
+    document.getElementById('complete-screen').classList.remove('show');
+    document.getElementById('quiz-area').style.display = 'flex';
+    document.getElementById('bottom-area').style.display = 'block';
+
+    renderHearts();
+    updateProgress();
+    nextQuestion();
+}
+
+function restartCurrent() {
+    if (currentCat) startQuiz(currentCat);
+    else goHome();
+}
+
+function goHome() {
+    document.getElementById('home-screen').classList.remove('hidden');
+    document.getElementById('quiz-screen').classList.remove('show');
+    document.getElementById('complete-screen').classList.remove('show');
+    document.getElementById('quiz-area').style.display = 'flex';
+    document.getElementById('bottom-area').style.display = 'block';
+    renderHome();
+}
+
+function renderHearts() {
+    document.getElementById('hearts-num').textContent = Math.max(hearts, 0);
+}
+
+function updateProgress() {
+    const total = window._totalQ || TOTAL_QUESTIONS;
+    const pct = (questionsDone / total) * 100;
+    document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+function nextQuestion() {
+    if (queue.length === 0 || hearts <= 0) {
+        showComplete();
+        return;
+    }
+    const item = queue.pop();
+    currentQ = buildQuestion(item);
+    renderQuestion(currentQ);
+    resetBottomBar();
+    state = 'waiting';
+    selectedOption = null;
+}
+
+// 出題類型分發
+function buildQuestion(item) {
+    if (currentType === 'vocab') return buildVocabQ(item);
+    if (currentType === 'grammar-particle') return buildParticleQ(item);
+    if (currentType === 'grammar-pattern') return buildPatternQ(item);
+    if (currentType === 'grammar-adj') return buildAdjQ(item);
+    if (currentType === 'phrase') return buildPhraseQ(item);
+    return buildVocabQ(item);
+}
+
+// === Vocab ===
+function buildVocabQ(item) {
+    const modes = ['k2a', 'a2k', 'r2a', 'listen'];
+    const mode = modes[Math.floor(Math.random() * modes.length)];
+    const all = currentCat.items.filter(v => v.k !== item.k);
+    const others = shuffle(all).slice(0, 3);
+
+    let questionHtml, instruction, options, correct;
+
+    if (mode === 'k2a') {
+        // 看日文 → 選中文
+        questionHtml = `
+            <button class="speak-btn" onclick="speakJp('${item.r}')">🔊</button>
+            <div class="question-kana jp">${item.r}</div>
+            <div class="question-kanji jp">${item.k}</div>
+        `;
+        instruction = '選出正確的中文意思';
+        correct = item.a;
+        options = shuffle([item.a, ...others.map(o => o.a)]).map(t => ({label:t, value:t}));
+    } else if (mode === 'a2k') {
+        // 看中文 → 選日文
+        questionHtml = `<div class="question-meaning">${item.a}</div>`;
+        instruction = '選出對應的日文';
+        correct = item.k;
+        options = shuffle([item, ...others]).map(o => ({
+            label: `<div class="opt-main jp">${o.k}</div><div class="opt-sub jp">${o.r}</div>`,
+            value: o.k,
+            html: true
+        }));
+    } else if (mode === 'r2a') {
+        // 看假名 → 選中文
+        questionHtml = `
+            <button class="speak-btn" onclick="speakJp('${item.r}')">🔊</button>
+            <div class="question-kanji jp" style="font-size:34px;">${item.r}</div>
+        `;
+        instruction = '選出正確的中文意思';
+        correct = item.a;
+        options = shuffle([item.a, ...others.map(o => o.a)]).map(t => ({label:t, value:t}));
+    } else {
+        // 聽力 → 選中文
+        questionHtml = `
+            <button class="speak-btn big" onclick="speakJp('${item.r}')">🔊</button>
+            <div class="grammar-desc" style="font-size:14px;">點圖示再聽一次</div>
+        `;
+        instruction = '聽音檔，選出意思';
+        correct = item.a;
+        options = shuffle([item.a, ...others.map(o => o.a)]).map(t => ({label:t, value:t}));
+        // 自動播放
+        setTimeout(() => speakJp(item.r), 350);
+    }
+
+    return {
+        questionHtml,
+        instruction,
+        typeLabel: currentCat.icon + ' ' + currentCat.name,
+        options,
+        correct,
+        explainAnswer: `${item.k} (${item.r}) = ${item.a}`,
+        item
+    };
+}
+
+// === Grammar - 助詞填空 ===
+function buildParticleQ(item) {
+    const allParticles = ['は','が','を','に','へ','で','と','から','まで','の','も'];
+    const others = shuffle(allParticles.filter(p => p !== item.ans)).slice(0, 3);
+    const opts = shuffle([item.ans, ...others]);
+
+    const questionHtml = `
+        <button class="speak-btn" onclick="speakJp('${item.r.replace(/___/g,item.ans)}')">🔊</button>
+        <div class="question-grammar jp">${item.pre}<span class="fill-blank">？</span>${item.post}</div>
+        <div class="grammar-reading jp">${item.r}</div>
+        <div class="grammar-desc">${item.desc}</div>
+    `;
+
+    return {
+        questionHtml,
+        instruction: '選出正確的助詞',
+        typeLabel: '🔤 助詞填空',
+        options: opts.map(p => ({label:`<div class="opt-main jp" style="font-size:22px;">${p}</div>`, value:p, html:true})),
+        correct: item.ans,
+        explainAnswer: `${item.pre}${item.ans}${item.post}`,
+        item
+    };
+}
+
+// === Grammar - 句型 ===
+function buildPatternQ(item) {
+    const opts = shuffle([item.a, ...item.distractors]);
+    const questionHtml = `<div class="phrase-zh">${item.q}</div>`;
+    return {
+        questionHtml,
+        instruction: '選出正確的日文',
+        typeLabel: '📝 句型練習',
+        options: opts.map(t => ({
+            label: `<div class="opt-main jp" style="font-size:15px; line-height:1.4;">${t}</div>`,
+            value: t, html: true
+        })),
+        correct: item.a,
+        explainAnswer: `${item.a} (${item.r})`,
+        item
+    };
+}
+
+// === Grammar - 形容詞變化 ===
+function buildAdjQ(item) {
+    const opts = shuffle([item.a, ...item.distractors]);
+    const questionHtml = `<div class="phrase-zh">${item.q}</div>`;
+    return {
+        questionHtml,
+        instruction: '選出正確的變化',
+        typeLabel: '🎨 形容詞變化',
+        options: opts.map(t => ({
+            label: `<div class="opt-main jp" style="font-size:18px;">${t}</div>`,
+            value: t, html: true
+        })),
+        correct: item.a,
+        explainAnswer: `${item.a} (${item.r})`,
+        item
+    };
+}
+
+// === 短句 ===
+function buildPhraseQ(item) {
+    const all = currentCat.items.filter(v => v.jp !== item.jp);
+    const others = shuffle(all).slice(0, 3);
+
+    const mode = Math.random() < 0.5 ? 'zh2jp' : 'listen2zh';
+
+    if (mode === 'zh2jp') {
+        const questionHtml = `<div class="phrase-zh">${item.zh}</div>`;
+        const opts = shuffle([item, ...others]);
+        return {
+            questionHtml,
+            instruction: '選出對應的日文短句',
+            typeLabel: '💬 旅遊短句',
+            options: opts.map(o => ({
+                label: `<div class="opt-main jp" style="font-size:14px; line-height:1.4;">${o.jp}</div>`,
+                value: o.jp, html: true
+            })),
+            correct: item.jp,
+            explainAnswer: `${item.jp}\n(${item.r})`,
+            item
+        };
+    } else {
+        const questionHtml = `
+            <button class="speak-btn big" onclick="speakJp('${item.r}')">🔊</button>
+            <div class="grammar-desc" style="font-size:14px;">點圖示再聽一次</div>
+        `;
+        const opts = shuffle([item.zh, ...others.map(o => o.zh)]);
+        setTimeout(() => speakJp(item.r), 350);
+        return {
+            questionHtml,
+            instruction: '聽聽看，選出中文意思',
+            typeLabel: '💬 旅遊短句',
+            options: opts.map(t => ({label:t, value:t})),
+            correct: item.zh,
+            explainAnswer: `${item.jp} = ${item.zh}`,
+            item
+        };
+    }
+}
+
+// ============================================================
+// RENDER QUESTION
+// ============================================================
+function renderQuestion(q) {
+    document.getElementById('type-label').textContent = q.typeLabel;
+    document.getElementById('instruction').textContent = q.instruction;
+    document.getElementById('question-card').innerHTML = q.questionHtml;
+
+    const optEl = document.getElementById('options');
+    const labels = ['A','B','C','D'];
+    optEl.innerHTML = '';
+    optEl.className = 'options' + (q.options.length <= 2 ? ' single-col' : '');
+    q.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        const content = opt.html ? opt.label : `<div class="opt-main">${opt.label}</div>`;
+        btn.innerHTML = `<span class="badge">${labels[i]}</span><div style="flex:1; min-width:0;">${content}</div>`;
+        btn.dataset.value = opt.value;
+        btn.onclick = () => selectOption(btn, opt.value);
+        optEl.appendChild(btn);
+    });
+}
+
+function selectOption(btn, value) {
+    if (state !== 'waiting') return;
+    document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedOption = value;
+    document.getElementById('btn-check').disabled = false;
+}
+
+function checkAnswer() {
+    if (state !== 'waiting' || selectedOption === null) return;
+    state = 'answered';
+    answered++;
+
+    const isCorrect = selectedOption === currentQ.correct;
+
+    document.querySelectorAll('.option-btn').forEach(btn => {
+        btn.disabled = true;
+        const v = btn.dataset.value;
+        if (v === currentQ.correct) btn.classList.add('correct');
+        else if (v === selectedOption && !isCorrect) btn.classList.add('wrong');
+    });
+
+    if (isCorrect) {
+        correctCount++;
+        xp += XP_PER_CORRECT;
+        questionsDone++;
+        showFeedback(true);
+        showXpPopup();
+        flashCorrect();
+    } else {
+        hearts--;
+        renderHearts();
+        shakeHeart();
+        questionsDone++;
+        showFeedback(false);
+        // 念出正確答案
+        const item = currentQ.item;
+        if (item) {
+            if (item.r) speakJp(item.r);
+            else if (item.k) speakJp(item.k);
         }
+    }
 
-        let queue = shuffle([...db]);
+    updateProgress();
+    switchToContinue(isCorrect);
+}
 
-        function renderQuestion() {
-            gameState = 'input'; // 重置為輸入模式
+function skipQuestion() {
+    if (state === 'answered') { nextQuestion(); return; }
+    state = 'answered';
+    answered++;
+    hearts--;
+    questionsDone++;
+    renderHearts();
+    shakeHeart();
+    updateProgress();
 
-            if (queue.length === 0) {
-                queue = shuffle([...db]);
-            }
-            
-            const item = queue.pop();
-            currentIdx++;
-            const lineNum = 10 + Math.floor(Math.random() * 50);
+    document.querySelectorAll('.option-btn').forEach(btn => {
+        btn.disabled = true;
+        if (btn.dataset.value === currentQ.correct) btn.classList.add('correct');
+    });
+    showFeedback(false);
+    switchToContinue(false);
+}
 
-            let html = '';
+function showFeedback(correct) {
+    const msg = document.getElementById('feedback-msg');
+    const icon = document.getElementById('feedback-icon');
+    const title = document.getElementById('feedback-title');
+    const ansEl = document.getElementById('feedback-answer');
 
-            if (item.mode === 'g') {
-                html = `
-<div class="line"><span class="ln">${lineNum}</span><span class="code"><span class="doc">/**</span></span></div>
-<div class="line"><span class="ln">${lineNum+1}</span><span class="code"><span class="doc"> * Grammar: ${item.desc}</span></span></div>
-<div class="line"><span class="ln">${lineNum+2}</span><span class="code"><span class="doc"> * Reading: ${item.r}</span></span></div>
-<div class="line"><span class="ln">${lineNum+3}</span><span class="code"><span class="doc"> */</span></span></div>
-<div class="line"><span class="ln">${lineNum+4}</span><span class="code"><span class="k">const</span> <span class="v">sentence</span> = <span class="s">"${item.pre} <input id="ans-input" autocomplete="off" style="width:50px; text-align:center;"> ${item.post}"</span>;</span></div>
-<div class="line"><span class="ln">${lineNum+5}</span><span class="code"><span class="v">console</span>.<span class="f">log</span>(<span class="v">sentence</span>);</span></div>
-<div class="line"><span class="ln">${lineNum+6}</span><span class="code" id="feedback"></span></div>`;
-            } else {
-                let typeStr = item.t === 'v' ? 'Verb' : (item.t === 'adj' ? 'Adjective' : (item.t === 'adv' ? 'Adverb' : 'Noun'));
-                html = `
-<div class="line"><span class="ln">${lineNum}</span><span class="code"><span class="doc">/**</span></span></div>
-<div class="line"><span class="ln">${lineNum+1}</span><span class="code"><span class="doc"> * Reading: ${item.r} </span></span></div>
-<div class="line"><span class="ln">${lineNum+2}</span><span class="code"><span class="doc"> * Hint:    ${item.h} </span></span></div>
-<div class="line"><span class="ln">${lineNum+3}</span><span class="code"><span class="doc"> */</span></span></div>
-<div class="line"><span class="ln">${lineNum+4}</span><span class="code"><span class="k">export</span> <span class="k">const</span> <span class="v">${item.k}</span>: <span class="t">${typeStr}</span> = <span class="s">"<input id="ans-input" autocomplete="off" placeholder="...">"</span>;</span></div>
-<div class="line"><span class="ln">${lineNum+5}</span><span class="code" id="feedback"></span></div>`;
-            }
+    msg.className = 'feedback-msg visible ' + (correct ? 'correct-msg' : 'wrong-msg');
+    icon.textContent = correct ? '✅' : '❌';
+    title.textContent = correct ? '太棒了！答對了' : '答錯了，再加油！';
+    ansEl.innerHTML = correct
+        ? `+${XP_PER_CORRECT} XP <span class="jp-ans">${currentQ.explainAnswer || ''}</span>`
+        : `正確答案：<span class="jp-ans">${currentQ.explainAnswer || currentQ.correct}</span>`;
+}
 
-            codeContainer.innerHTML = html;
-            
-            const input = document.getElementById('ans-input');
-            input.focus();
-            input.dataset.answers = JSON.stringify(item.a);
-            
-            // 監聽 Enter 鍵 (雙重邏輯)
-            input.addEventListener('keydown', (e) => {
-                if(e.key === 'Enter') {
-                    if (gameState === 'input') {
-                        checkAnswer(input);
-                    } else {
-                        renderQuestion();
-                    }
-                }
-            });
-            
-            progressIndicator.innerText = `Ln ${lineNum+4}, Col 12`;
-        }
+function switchToContinue(isCorrect) {
+    document.getElementById('action-row').innerHTML = `
+        <button class="btn-continue ${isCorrect ? '' : 'red'}" onclick="nextQuestion()">${isCorrect ? '繼續 →' : '知道了'}</button>
+    `;
+}
 
-        function checkAnswer(input) {
-            const userVal = input.value.trim().toLowerCase();
-            const answers = JSON.parse(input.dataset.answers);
-            const feedback = document.getElementById('feedback');
-            
-            const correct = answers.some(a => a.toLowerCase() === userVal);
+function resetBottomBar() {
+    document.getElementById('feedback-msg').className = 'feedback-msg';
+    document.getElementById('action-row').innerHTML = `
+        <button class="btn-skip" onclick="skipQuestion()">跳過</button>
+        <button class="btn-check" id="btn-check" disabled onclick="checkAnswer()">確認</button>
+    `;
+}
 
-            gameState = 'result'; // 切換狀態
+function showXpPopup() {
+    const popup = document.createElement('div');
+    popup.className = 'xp-popup';
+    popup.textContent = `+${XP_PER_CORRECT} XP ⭐`;
+    const bar = document.getElementById('progress-bar');
+    const rect = bar.getBoundingClientRect();
+    popup.style.top = (rect.bottom + 10) + 'px';
+    popup.style.right = '20px';
+    document.body.appendChild(popup);
+    setTimeout(() => popup.remove(), 1000);
+}
 
-            if (correct) {
-                input.style.color = '#b5cea8'; // Greenish
-                feedback.innerHTML = `<span class="c">// OK. Saved. <span style="opacity:0.5; font-size:0.8em;">(Press Enter)</span></span>`;
-                correctCount++;
-            } else {
-                input.style.color = '#f44747'; // Red
-                input.style.borderBottom = '1px solid #f44747';
-                feedback.innerHTML = `<span class="c" style="color:#f44747">// Error: Expected "${answers[0]}" <span style="color:#858585;">(Press Enter)</span></span>`;
-            }
-        }
+function flashCorrect() {
+    const el = document.getElementById('streak-flash');
+    el.style.display = 'block';
+    el.style.animation = 'none';
+    requestAnimationFrame(() => {
+        el.style.animation = 'flashGreen 0.4s ease forwards';
+    });
+    setTimeout(() => { el.style.display = 'none'; }, 400);
+}
 
-        document.addEventListener('keydown', (e) => {
-            // Boss Key
-            if (e.key === 'Escape') {
-                isBossMode = !isBossMode;
-                if(isBossMode) {
-                    bossScreen.style.display = 'block';
-                    document.title = 'Command Prompt';
-                } else {
-                    bossScreen.style.display = 'none';
-                    document.title = 'vocabulary.ts - Project N5';
-                    const input = document.getElementById('ans-input');
-                    if(input) input.focus();
-                }
-            }
-            // 全域 Enter (防止焦點不在輸入框時無法下一題)
-            if (e.key === 'Enter' && gameState === 'result') {
-                renderQuestion();
-            }
-        });
+function shakeHeart() {
+    const heart = document.getElementById('heart-emoji');
+    heart.classList.remove('shake');
+    void heart.offsetWidth;
+    heart.classList.add('shake');
+}
 
-        // 啟動
-        renderQuestion();
-    </script>
+function showComplete() {
+    document.getElementById('quiz-area').style.display = 'none';
+    document.getElementById('bottom-area').style.display = 'none';
+
+    const accuracy = answered > 0 ? Math.round((correctCount / answered) * 100) : 0;
+    document.getElementById('final-xp').textContent = xp;
+    document.getElementById('final-accuracy').textContent = accuracy + '%';
+    document.getElementById('final-hearts').textContent = Math.max(hearts, 0);
+
+    const allCorrect = (correctCount === answered) && answered > 0;
+    document.getElementById('complete-title').textContent = hearts <= 0 ? '不要放棄！再試一次' : (allCorrect ? '完美! 🎉' : '太厲害了！');
+    document.getElementById('complete-sub').textContent = `本回合：${correctCount} / ${answered} 題答對`;
+
+    // 儲存進度
+    progress.xp = (progress.xp || 0) + xp;
+    progress.catProgress[currentCat.id] = progress.catProgress[currentCat.id] || {best: 0, played: 0};
+    progress.catProgress[currentCat.id].played += 1;
+    if (accuracy > (progress.catProgress[currentCat.id].best || 0)) {
+        progress.catProgress[currentCat.id].best = accuracy;
+    }
+    progress = updateStreak(progress);
+    saveProgress(progress);
+
+    document.getElementById('complete-screen').classList.add('show');
+    document.getElementById('quiz-screen').classList.remove('show');
+}
+
+// ============================================================
+// TTS  (Web Speech API)
+// ============================================================
+let jpVoice = null;
+function pickVoice() {
+    const voices = speechSynthesis.getVoices();
+    jpVoice = voices.find(v => v.lang === 'ja-JP') ||
+              voices.find(v => v.lang.startsWith('ja')) ||
+              null;
+}
+if ('speechSynthesis' in window) {
+    pickVoice();
+    speechSynthesis.onvoiceschanged = pickVoice;
+}
+
+function speakJp(text) {
+    if (!('speechSynthesis' in window)) return;
+    if (!text) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'ja-JP';
+    if (jpVoice) u.voice = jpVoice;
+    u.rate = 0.95;
+    u.pitch = 1;
+    speechSynthesis.speak(u);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        if (state === 'waiting' && !document.getElementById('btn-check')?.disabled) checkAnswer();
+        else if (state === 'answered') nextQuestion();
+    }
+    const map = {'1':0,'2':1,'3':2,'4':3,'a':0,'b':1,'c':2,'d':3};
+    if (map[e.key.toLowerCase()] !== undefined && state === 'waiting') {
+        const btns = document.querySelectorAll('.option-btn');
+        const idx = map[e.key.toLowerCase()];
+        if (btns[idx]) btns[idx].click();
+    }
+});
+
+renderHome();
+</script>
 </body>
 </html>
