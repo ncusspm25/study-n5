@@ -2,8 +2,20 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
     <title>旅遊日語 N5 · 邊玩邊學</title>
+
+    <!-- iOS 加入主畫面 / PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="旅遊日語">
+    <meta name="theme-color" content="#58cc02">
+    <meta name="format-detection" content="telephone=no">
+
+    <!-- Favicon & 主畫面圖示 (內嵌 SVG，免外部檔案) -->
+    <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%2358cc02"/><text x="32" y="46" text-anchor="middle" font-size="42">🗾</text></svg>'>
+    <link rel="apple-touch-icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><rect width="180" height="180" rx="40" fill="%2358cc02"/><text x="90" y="125" text-anchor="middle" font-size="110">🗾</text></svg>'>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Noto+Sans+JP:wght@500;700;900&family=Noto+Sans+TC:wght@500;700&display=swap');
 
@@ -38,9 +50,12 @@
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             flex-direction: column;
             -webkit-tap-highlight-color: transparent;
+            -webkit-text-size-adjust: 100%;
+            overscroll-behavior-y: none;
         }
 
         .jp { font-family: 'Noto Sans JP', sans-serif; }
@@ -53,7 +68,7 @@
             max-width: 720px;
             width: 100%;
             margin: 0 auto;
-            padding: 20px 16px 60px;
+            padding: calc(20px + env(safe-area-inset-top)) 16px calc(60px + env(safe-area-inset-bottom));
             display: flex;
             flex-direction: column;
             gap: 24px;
@@ -204,7 +219,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 14px 16px;
+            padding: calc(14px + env(safe-area-inset-top)) 16px 14px;
             background: white;
             border-bottom: 2px solid var(--gray);
             position: sticky;
@@ -265,7 +280,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 24px 16px 200px;
+            padding: 24px 16px calc(220px + env(safe-area-inset-bottom));
             max-width: 600px;
             width: 100%;
             margin: 0 auto;
@@ -485,7 +500,7 @@
             bottom: 0; left: 0; right: 0;
             background: white;
             border-top: 2px solid var(--gray);
-            padding: 14px 16px;
+            padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
             z-index: 50;
         }
 
@@ -1691,6 +1706,18 @@ function speakJp(text) {
     u.pitch = 1;
     speechSynthesis.speak(u);
 }
+
+// iOS Safari 需要在第一次 user gesture 內呼叫一次才會放行後續的程式播放
+let ttsUnlocked = false;
+function unlockTTS() {
+    if (ttsUnlocked || !('speechSynthesis' in window)) return;
+    const u = new SpeechSynthesisUtterance('');
+    u.volume = 0;
+    speechSynthesis.speak(u);
+    ttsUnlocked = true;
+}
+document.addEventListener('touchstart', unlockTTS, {once: true, passive: true});
+document.addEventListener('click', unlockTTS, {once: true});
 
 // ============================================================
 // INIT
